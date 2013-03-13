@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>ILRepack.MSBuild.Task</id>
+        <version>1.0.4</version>
+        <title>ILRepack.MSBuild.Task</title>
+        <authors>Peter Sunde</authors>
+        <owners>petersunde</owners>
+        <projectUrl>https://github.com/peters/ILRepack.MSBuild.Task</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>MSBuild task for ILRepack which is an open-source alternative to ILMerge.</description>
+        <summary>MSBuild task for ILRepack which is an open-source alternative to ILMerge.</summary>
+        <copyright>Peter Sunde</copyright>
+		<tags>MSBuild ILRepack</tags>
+    </metadata>
+	<files>
+		<file src="tools\ILRepack.MSBuild.Task.Targets" target="tools\ILRepack.MSBuild.Task.Targets" />
+		<file src="src\bin\Release\ILRepack.MSBuild.Task.dll" target="tools\ILRepack.MSBuild.Task.dll" />
+		<file src="src\bin\Release\ILRepack.exe" target="tools\ILRepack.exe" />
+	</files>
+</package>

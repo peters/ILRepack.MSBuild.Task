@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ILRepack.MSBuild.Task</RootNamespace>
     <AssemblyName>ILRepack.MSBuild.Task</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
@@ -34,7 +34,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ILRepack, Version=1.22.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\ILRepack.Lib.1.22.2\lib\ILRepack.exe</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>packages\ILRepack.Lib.1.22.2\lib\ILRepack.exe</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Build.Utilities" />
@@ -47,17 +48,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="LICENSE.md" />
-    <None Include="packages.config" />
-    <None Include="README.md" />
+    <None Include="..\LICENSE.md" />
+    <None Include="..\README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
