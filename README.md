@@ -9,7 +9,7 @@ Install via NuGet
 
 Sample usage
 ============
-
+```
 <Target Name="ILRepack" DependsOnTargets="Build" Condition="'$(Configuration)' == 'Release'">
 	
 	<PropertyGroup>
@@ -31,7 +31,8 @@ Sample usage
 		OutputFile="$(OutputFile)"
 		/>
 
-  </Target>
+</Target>
+```
 
 Additional task options
 =======================
