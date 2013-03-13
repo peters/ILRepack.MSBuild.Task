@@ -1,0 +1,8 @@
+D:\Bruker_data\Visual Studio 2012\Projects\geoocr\src\ILRepack.MSBuild.Tasks\bin\Release\ILRepack.MSBuild.Tasks.dll
+D:\Bruker_data\Visual Studio 2012\Projects\geoocr\src\ILRepack.MSBuild.Tasks\bin\Release\ILRepack.exe
+D:\Bruker_data\Visual Studio 2012\Projects\geoocr\src\ILRepack.MSBuild.Tasks\obj\Release\ILRepack.MSBuild.Tasks.dll
+D:\Bruker_data\Visual Studio 2012\Projects\geoocr\src\ILRepack.MSBuild.Tasks\obj\Release\ILRepack.MSBuild.Tasks.pdb
+D:\Bruker_data\Visual Studio 2012\Projects\geoocr\src\ILRepack.MSBuild.Tasks\bin\Release\ILRepack.MSBuild.Tasks.pdb
+D:\Bruker_data\Visual Studio 2012\Projects\geoocr\src\ILRepack.MSBuild.Tasks\obj\Release\ILRepack.MSBuild.Tasks.csprojResolveAssemblyReference.cache
+D:\build\ILRepack.MSBuild.Tasks.dll
+D:\build\ILRepack.MSBuild.Tasks.pdb
