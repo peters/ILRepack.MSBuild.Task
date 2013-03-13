@@ -10,28 +10,31 @@ Install via NuGet
 Sample usage
 ============
 ```
+<!-- ILRepack -->
+<Import Project="$(SolutionDir)\packages\ILRepack.MSBuild.Task.1.0.4\tools\ILRepack.MSBuild.Task.Targets" />	
 <Target Name="ILRepack" DependsOnTargets="Build" Condition="'$(Configuration)' == 'Release'">
 	
-	<PropertyGroup>
-	    <RootFolder>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))</RootFolder>
-		<OutputFile>$(OutputPath)\$(AssemblyName).dll</OutputFile>
-		<AssembliesPath>$(OutputPath)</AssembliesPath>
-	</PropertyGroup>
+   <PropertyGroup>
+	<RootFolder>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))</RootFolder>
+	<OutputFile>$(OutputPath)\$(AssemblyName).dll</OutputFile>
+	<AssembliesPath>$(OutputPath)</AssembliesPath>
+   </PropertyGroup>
 
-	<ItemGroup>
-		<InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge1.dll" />
-		<InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge2.dll" />
-		<InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge3.dll" />
+   <ItemGroup>
+	<InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge1.dll" />
+	<InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge2.dll" />
+	<InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge3.dll" />
     </ItemGroup>
 
     <ILRepack 
-		Parallel="true" 
-		InputAssemblies="@(InputAssemblies)"
-		TargetKind="Dll"
-		OutputFile="$(OutputFile)"
-		/>
+	Parallel="true" 
+	InputAssemblies="@(InputAssemblies)"
+	TargetKind="Dll"
+	OutputFile="$(OutputFile)"
+	/>
 
 </Target>
+<!-- /ILRepack -->
 ```
 
 Additional task options
