@@ -15,7 +15,6 @@ Sample usage
 <Target Name="ILRepack" DependsOnTargets="Build" Condition="'$(Configuration)' == 'Release'">
 	
    <PropertyGroup>
-	<RootFolder>$([System.IO.Path]::GetDirectoryName($(MSBuildProjectDirectory)))</RootFolder>
 	<OutputFile>$(OutputPath)\$(AssemblyName).dll</OutputFile>
 	<AssembliesPath>$(OutputPath)</AssembliesPath>
    </PropertyGroup>
