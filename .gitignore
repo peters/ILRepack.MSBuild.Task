@@ -1,3 +1,7 @@
+# NuGet Packages Directory
+packages
+.nuget
+
 syntax: glob
 
 _ReSharper*
@@ -16,6 +20,7 @@ obj
 *.userprefs
 *.xml
 *.gpState
+*.sln.cache
 glob:*.bak
 glob:*.rej
 glob:commands.txt
