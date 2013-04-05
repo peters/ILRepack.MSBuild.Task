@@ -1,0 +1,3 @@
+[submodule "deps/ilrepack"]
+	path = deps/ilrepack
+	url = https://github.com/gluck/il-repack.git
