@@ -7,30 +7,25 @@ Install via NuGet
 =================
 	Install-Package ILRepack.MSBuild.Task
 
-Sample usage
+Usage
 ============
 ```
 <!-- ILRepack -->
-<Import Project="$(SolutionDir)\packages\ILRepack.MSBuild.Task.1.0.4\tools\ILRepack.MSBuild.Task.Targets" />	
+<Import Project="$(MSBuildProjectDirectory)\packages\ILRepack.MSBuild.Task.1.0.5\tools\ILRepack.MSBuild.Task.Targets" />	
 <Target Name="ILRepack" DependsOnTargets="Build" Condition="'$(Configuration)' == 'Release'">
 	
-   <PropertyGroup>
-	<OutputFile>$(OutputPath)\$(AssemblyName).dll</OutputFile>
-	<AssembliesPath>$(OutputPath)</AssembliesPath>
-   </PropertyGroup>
-
    <ItemGroup>
 	<InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge1.dll" />
 	<InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge2.dll" />
 	<InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge3.dll" />
-    </ItemGroup>
+   </ItemGroup>
 
-    <ILRepack 
+   <ILRepack 
 	Parallel="true" 
 	InputAssemblies="@(InputAssemblies)"
 	TargetKind="Dll"
-	OutputFile="$(OutputFile)"
-	/>
+	OutputFile="$(OutputPath)\$(AssemblyName).dll"
+   />
 
 </Target>
 <!-- /ILRepack -->
@@ -60,6 +55,7 @@ Additional task options
 * PauseBeforeExit - Pause execution once completed (good for debugging)
 * Verbose - Additional debug information during merge that will be outputted to LogFile
 * PrimaryAssembly - Used in conjunction with Interalize to specify the main assembly filename
+* Wildcards - Allows (and resolves) file wildcards (e.g. `*`.dll) in input assemblies
 
 License
 =======

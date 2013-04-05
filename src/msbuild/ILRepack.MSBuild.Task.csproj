@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ILRepack.MSBuild.Task</RootNamespace>
     <AssemblyName>ILRepack.MSBuild.Task</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
@@ -33,10 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ILRepack, Version=1.22.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>packages\ILRepack.Lib.1.22.2\lib\ILRepack.exe</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Build.Utilities" />
     <Reference Include="System" />
@@ -48,8 +44,32 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\LICENSE.md" />
-    <None Include="..\README.md" />
+    <None Include="LICENSE.md" />
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\deps\ilrepack\ILRepack\ILRepack.csproj">
+      <Project>{4a253a60-d998-4ca2-b9d5-46567a2fbf80}</Project>
+      <Name>ILRepack</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\deps\ilrepack\packages\ILRepack.MSBuild.Task.1.0.4\tools\ILRepack.MSBuild.Task.Targets" />
+	
+  <Target Name="AfterBuild">
+
+	<ItemGroup>
+		<MergeFiles Include="$(OutputPath)\$(AssemblyName).dll" />
+		<MergeFiles Include="$(OutputPath)\ILRepack.dll" />
+	</ItemGroup>
+
+	<ILRepack
+		Parallel="true"
+		InputAssemblies="@(MergeFiles)"
+		TargetKind="Dll"
+		OutputFile="$(OutputPath)\$(AssemblyName).dll"
+	/>
+		
+  </Target>
+	
 </Project>

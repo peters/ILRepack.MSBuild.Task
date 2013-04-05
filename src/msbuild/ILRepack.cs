@@ -204,6 +204,12 @@ namespace ILRepack.MSBuild.Task
         }
 
         /// <summary>
+        /// Name of primary assembly when used in conjunction
+        /// with Internalize.
+        /// </summary>
+        public virtual string PrimaryAssemblyFile { get; set; }
+
+        /// <summary>
         /// Pause execution once completed (good for debugging)
         /// </summary>
         public virtual bool PauseBeforeExit { get; set; }
@@ -213,6 +219,12 @@ namespace ILRepack.MSBuild.Task
         /// will be outputted to LogFile
         /// </summary>
         public virtual bool Verbose { get; set; }
+
+        /// <summary>
+        /// Allows (and resolves) file wildcards (e.g. `*`.dll)
+        /// in input assemblies
+        /// </summary>
+        public virtual bool Wildcards { get; set; }
 
         #endregion
 
@@ -239,7 +251,9 @@ namespace ILRepack.MSBuild.Task
                     AllowZeroPeKind = ZeroPeKind,
                     Parallel = Parallel,
                     PauseBeforeExit = PauseBeforeExit,
-                    OutputFile = _outputFile  
+                    OutputFile = _outputFile,
+                    PrimaryAssemblyFile = PrimaryAssemblyFile,
+                    AllowWildCards = Wildcards
                 };
 
             // Attempt to create output directory if it does not exist.
@@ -247,7 +261,7 @@ namespace ILRepack.MSBuild.Task
             if (outputPath != null && !Directory.Exists(outputPath))
             {
                 try
-                {
+                { 
                     Directory.CreateDirectory(outputPath);
                 }
                 catch (Exception ex)
@@ -261,8 +275,17 @@ namespace ILRepack.MSBuild.Task
             var assemblies = new string[_assemblies.Length];
             for (int i = 0; i < _assemblies.Length; i++)
             {
-                assemblies[i] = _assemblies[i].ItemSpec;
-                Log.LogMessage(MessageImportance.Normal, "Added assembly {0}", assemblies[i]);
+                var assemblyName = _assemblies[i].ItemSpec;
+                if (string.IsNullOrEmpty(assemblyName))
+                {
+                    throw new Exception("Invalid assembly path");
+                }
+                if (!File.Exists(assemblies[i]) && !File.Exists(BuildPath(assemblyName)))
+                {
+                    throw new Exception(string.Format("Unable to resolve assembly '{0}'", assemblyName));
+                }
+                assemblies[i] = assemblyName;
+                Log.LogMessage(MessageImportance.Normal, "Added assembly {0}", assemblyName);
             }
 
             _ilMerger.SetInputAssemblies(assemblies);
@@ -275,7 +298,8 @@ namespace ILRepack.MSBuild.Task
             // Attempt to merge assemblies
             try
             {
-                Log.LogMessage(MessageImportance.Normal, "Merging {0} assemb{1} to '{2}'.", _assemblies.Length, (_assemblies.Length != 1) ? "ies" : "y", _outputFile);
+                Log.LogMessage(MessageImportance.Normal, "Merging {0} assemb{1} to '{2}'.", 
+                    _assemblies.Length, (_assemblies.Length != 1) ? "ies" : "y", _outputFile);
                 _ilMerger.Merge();
             }
             catch (Exception e)
@@ -301,5 +325,6 @@ namespace ILRepack.MSBuild.Task
                 Path.Combine(solutionDir, iti);
         }
         #endregion
+
     }
 }
