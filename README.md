@@ -54,7 +54,7 @@ Additional task options
 * Parallel - Use as many CPUs as possible to merge the assemblies
 * PauseBeforeExit - Pause execution once completed (good for debugging)
 * Verbose - Additional debug information during merge that will be outputted to LogFile
-* PrimaryAssembly - Used in conjunction with Interalize to specify the main assembly filename
+* PrimaryAssemblyFile - Used in conjunction with Interalize to specify the main assembly filename
 * Wildcards - Allows (and resolves) file wildcards (e.g. `*`.dll) in input assemblies
  
 License
