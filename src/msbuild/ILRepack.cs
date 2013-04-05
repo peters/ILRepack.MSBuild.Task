@@ -38,7 +38,8 @@ using Microsoft.Build.Framework;
 
 namespace ILRepack.MSBuild.Task
 {
-    public class ILRepack : Microsoft.Build.Utilities.Task
+
+    public class ILRepack : Microsoft.Build.Utilities.Task, IDisposable
     {
 
         #region Variables
@@ -52,6 +53,7 @@ namespace ILRepack.MSBuild.Task
         private ITaskItem[] _assemblies = new ITaskItem[0];
         private ILRepacking.ILRepack.Kind _targetKind;
         private ILRepacking.ILRepack _ilMerger;
+        private string _excludeFileTmpPath;
         #endregion
 
         #region Fields
@@ -156,6 +158,11 @@ namespace ILRepack.MSBuild.Task
         public virtual bool Internalize { get; set; }
 
         /// <summary>
+        /// List of assemblies that should not be interalized.
+        /// </summary>
+        public virtual ITaskItem[] InternalizeExclude { get; set; }
+
+        /// <summary>
         /// Output name for merged assembly
         /// </summary>
         [Required]
@@ -229,6 +236,10 @@ namespace ILRepack.MSBuild.Task
         #endregion
 
         #region Public methods
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override bool Execute()
         {
             _ilMerger = new ILRepacking.ILRepack
@@ -253,7 +264,7 @@ namespace ILRepack.MSBuild.Task
                     PauseBeforeExit = PauseBeforeExit,
                     OutputFile = _outputFile,
                     PrimaryAssemblyFile = PrimaryAssemblyFile,
-                    AllowWildCards = Wildcards
+                    AllowWildCards = Wildcards,
                 };
 
             // Attempt to create output directory if it does not exist.
@@ -275,17 +286,43 @@ namespace ILRepack.MSBuild.Task
             var assemblies = new string[_assemblies.Length];
             for (int i = 0; i < _assemblies.Length; i++)
             {
-                var assemblyName = _assemblies[i].ItemSpec;
-                if (string.IsNullOrEmpty(assemblyName))
+                assemblies[i] = _assemblies[i].ItemSpec;
+                if (string.IsNullOrEmpty(assemblies[i]))
                 {
-                    throw new Exception("Invalid assembly path");
+                    throw new Exception("Invalid assembly path on item index " + i);
                 }
-                if (!File.Exists(assemblies[i]) && !File.Exists(BuildPath(assemblyName)))
+                if (!File.Exists(assemblies[i]) && !File.Exists(BuildPath(assemblies[i])))
                 {
-                    throw new Exception(string.Format("Unable to resolve assembly '{0}'", assemblyName));
+                    throw new Exception(string.Format("Unable to resolve assembly '{0}'", assemblies[i]));
                 }
-                assemblies[i] = assemblyName;
-                Log.LogMessage(MessageImportance.Normal, "Added assembly {0}", assemblyName);
+                Log.LogMessage(MessageImportance.Normal, "Added assembly {0}", assemblies[i]);
+            }
+
+            // List of assemblies that should not be internalized
+            var internalizeExclude = new string[InternalizeExclude.Length];
+            if (Internalize)
+            {
+                for (int i = 0; i < InternalizeExclude.Length; i++)
+                {
+                    internalizeExclude[i] = InternalizeExclude[i].ItemSpec;
+                    if (string.IsNullOrEmpty(internalizeExclude[i]))
+                    {
+                        throw new Exception("Invalid assembly internalize" +
+                                            " exclude path on item index " + i);
+                    }
+                    if (!File.Exists(assemblies[i]) && !File.Exists(BuildPath(assemblies[i])))
+                    {
+                        throw new Exception(string.Format("Unable to resolve assembly '{0}'", assemblies[i]));
+                    }
+                    Log.LogMessage(MessageImportance.Normal, 
+                        "Excluding assembly {0} from being internalized.", internalizeExclude[i]);
+                }
+
+                // Create a temporary file with a list of assemblies that
+                // should not be internalized.
+                _excludeFileTmpPath = Path.GetTempFileName();
+                File.WriteAllLines(_excludeFileTmpPath, internalizeExclude);
+                _ilMerger.ExcludeFile = _excludeFileTmpPath;
             }
 
             _ilMerger.SetInputAssemblies(assemblies);
@@ -312,17 +349,38 @@ namespace ILRepack.MSBuild.Task
         }
         #endregion
 
-        #region Public methods
-        private static string ConvertEmptyToNull(string iti)
+        #region Private methods
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        private static string ConvertEmptyToNull(string str)
         {
-            return string.IsNullOrEmpty(iti) ? null : iti;
+            return string.IsNullOrEmpty(str) ? null : str;
         }
 
-        private string BuildPath(string iti)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        private string BuildPath(string path)
         {
             var solutionDir = Path.GetDirectoryName(BuildEngine.ProjectFileOfTaskNode);
-            return (string.IsNullOrEmpty(iti) || solutionDir == null) ? null :
-                Path.Combine(solutionDir, iti);
+            return (string.IsNullOrEmpty(path) || solutionDir == null) ? null :
+                Path.Combine(solutionDir, path);
+        }
+        #endregion
+
+        #region IDisposable
+        public void Dispose()
+        {
+            // Remove temporary exclude file
+            if (File.Exists(_excludeFileTmpPath))
+            {
+                File.Delete(_excludeFileTmpPath);
+            }
         }
         #endregion
 
