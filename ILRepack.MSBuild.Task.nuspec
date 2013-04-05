@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>ILRepack.MSBuild.Task</id>
-        <version>1.0.4</version>
+        <version>1.0.5</version>
         <title>ILRepack.MSBuild.Task</title>
         <authors>Peter Sunde</authors>
         <owners>petersunde</owners>
@@ -16,6 +16,5 @@
 	<files>
 		<file src="tools\ILRepack.MSBuild.Task.Targets" target="tools\ILRepack.MSBuild.Task.Targets" />
 		<file src="src\bin\Release\ILRepack.MSBuild.Task.dll" target="tools\ILRepack.MSBuild.Task.dll" />
-		<file src="src\bin\Release\ILRepack.exe" target="tools\ILRepack.exe" />
 	</files>
 </package>
