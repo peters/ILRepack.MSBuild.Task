@@ -155,7 +155,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildThisFileDirectory)\..\packages\ILRepack.MSBuild.Task.1.0.4\tools\ILRepack.MSBuild.Task.Targets" />
+  <Import Project="$(SolutionDir)\packages\ILRepack.MSBuild.Task.1.0.7\tools\ILRepack.MSBuild.Task.Targets" />
 
   <Target Name="AfterBuild">
   
