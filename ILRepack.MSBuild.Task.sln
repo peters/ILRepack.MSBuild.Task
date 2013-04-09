@@ -19,6 +19,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Cecil.Mdb", "deps\ilre
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILRepack", "deps\ilrepack\ILRepack\ILRepack.csproj", "{4A253A60-D998-4CA2-B9D5-46567A2FBF80}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{F782A205-0DEC-484D-9F46-400394C91E2D}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,11 +67,11 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{4547EE79-6D49-4318-B473-B5BBF73B434C} = {B72EBDE2-44D1-4902-9B9A-73E8EEF4B6C6}
 		{D68133BD-1E63-496E-9EDE-4FBDBF77B486} = {B72EBDE2-44D1-4902-9B9A-73E8EEF4B6C6}
 		{63E6915C-7EA4-4D76-AB28-0D7191EEA626} = {B72EBDE2-44D1-4902-9B9A-73E8EEF4B6C6}
 		{8559DD7F-A16F-46D0-A05A-9139FAEBA8FD} = {B72EBDE2-44D1-4902-9B9A-73E8EEF4B6C6}
 		{4A253A60-D998-4CA2-B9D5-46567A2FBF80} = {B72EBDE2-44D1-4902-9B9A-73E8EEF4B6C6}
-		{4547EE79-6D49-4318-B473-B5BBF73B434C} = {B72EBDE2-44D1-4902-9B9A-73E8EEF4B6C6}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = cecil\Mono.Cecil.csproj
