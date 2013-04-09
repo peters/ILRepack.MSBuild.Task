@@ -242,6 +242,7 @@ namespace ILRepack.MSBuild.Task
         /// <returns></returns>
         public override bool Execute()
         {
+
             _ilMerger = new ILRepacking.ILRepack
                 {
                     KeyFile = _keyFile,
@@ -299,30 +300,33 @@ namespace ILRepack.MSBuild.Task
             }
 
             // List of assemblies that should not be internalized
-            var internalizeExclude = new string[InternalizeExclude.Length];
-            if (Internalize)
+            if (InternalizeExclude != null)
             {
-                for (int i = 0; i < InternalizeExclude.Length; i++)
+                var internalizeExclude = new string[InternalizeExclude.Length];
+                if (Internalize)
                 {
-                    internalizeExclude[i] = InternalizeExclude[i].ItemSpec;
-                    if (string.IsNullOrEmpty(internalizeExclude[i]))
+                    for (int i = 0; i < InternalizeExclude.Length; i++)
                     {
-                        throw new Exception("Invalid assembly internalize" +
-                                            " exclude path on item index " + i);
+                        internalizeExclude[i] = InternalizeExclude[i].ItemSpec;
+                        if (string.IsNullOrEmpty(internalizeExclude[i]))
+                        {
+                            throw new Exception("Invalid assembly internalize" +
+                                                " exclude path on item index " + i);
+                        }
+                        if (!File.Exists(assemblies[i]) && !File.Exists(BuildPath(assemblies[i])))
+                        {
+                            throw new Exception(string.Format("Unable to resolve assembly '{0}'", assemblies[i]));
+                        }
+                        Log.LogMessage(MessageImportance.Normal,
+                            "Excluding assembly {0} from being internalized.", internalizeExclude[i]);
                     }
-                    if (!File.Exists(assemblies[i]) && !File.Exists(BuildPath(assemblies[i])))
-                    {
-                        throw new Exception(string.Format("Unable to resolve assembly '{0}'", assemblies[i]));
-                    }
-                    Log.LogMessage(MessageImportance.Normal, 
-                        "Excluding assembly {0} from being internalized.", internalizeExclude[i]);
-                }
 
-                // Create a temporary file with a list of assemblies that
-                // should not be internalized.
-                _excludeFileTmpPath = Path.GetTempFileName();
-                File.WriteAllLines(_excludeFileTmpPath, internalizeExclude);
-                _ilMerger.ExcludeFile = _excludeFileTmpPath;
+                    // Create a temporary file with a list of assemblies that
+                    // should not be internalized.
+                    _excludeFileTmpPath = Path.GetTempFileName();
+                    File.WriteAllLines(_excludeFileTmpPath, internalizeExclude);
+                    _ilMerger.ExcludeFile = _excludeFileTmpPath;
+                }
             }
 
             _ilMerger.SetInputAssemblies(assemblies);
