@@ -15,7 +15,7 @@ Usage - MSBuild
 ============
 ```
 <!-- ILRepack -->
-<Import Project="$(MSBuildProjectDirectory)\packages\ILRepack.MSBuild.Task.1.0.6\tools\ILRepack.MSBuild.Task.Targets" />	
+<Import Project="$(MSBuildProjectDirectory)\packages\ILRepack.MSBuild.Task.1.0.7\tools\ILRepack.MSBuild.Task.Targets" />	
 <Target Name="AfterBuild" Condition="'$(Configuration)' == 'Release'">
 	
    <ItemGroup>
@@ -30,10 +30,9 @@ Usage - MSBuild
    </ItemGroup>
 
    <ILRepack 
-    Parallel="true"
-    Internalize="true"
+    	Parallel="true"
+    	Internalize="true"
 	InternalizeExclude="@(DoNotInternalizeAssemblies)"
-	Parallel="true" 
 	InputAssemblies="@(InputAssemblies)"
 	TargetKind="Dll"
 	OutputFile="$(OutputPath)\$(AssemblyName).dll"
