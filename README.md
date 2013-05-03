@@ -30,8 +30,8 @@ Usage - MSBuild
    </ItemGroup>
 
    <ILRepack 
-    	Parallel="true"
-    	Internalize="true"
+    Parallel="true"
+    Internalize="true"
 	InternalizeExclude="@(DoNotInternalizeAssemblies)"
 	InputAssemblies="@(InputAssemblies)"
 	TargetKind="Dll"
