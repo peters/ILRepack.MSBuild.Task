@@ -15,7 +15,6 @@ Usage - MSBuild
 ============
 ```
 <!-- ILRepack -->
-<Import Project="$(MSBuildProjectDirectory)\packages\ILRepack.MSBuild.Task.1.0.7\tools\ILRepack.MSBuild.Task.Targets" />	
 <Target Name="AfterBuild" Condition="'$(Configuration)' == 'Release'">
 	
    <ItemGroup>
