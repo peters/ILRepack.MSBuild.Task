@@ -49,6 +49,9 @@
       <Name>ILRepack</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\packages\ILRepack.MSBuild.Task.1.0.7\tools\ILRepack.MSBuild.Task.Targets" />
   <Target Name="AfterBuild">
@@ -58,4 +61,6 @@
     </ItemGroup>
     <ILRepack Parallel="true" InputAssemblies="@(MergeFiles)" TargetKind="Dll" OutputFile="$(OutputPath)\$(AssemblyName).dll" />
   </Target>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Import Project="..\..\packages\ILRepack.MSBuild.Task.1.0.9\build\ILRepack.MSBuild.Task.targets" Condition="Exists('..\..\packages\ILRepack.MSBuild.Task.1.0.9\build\ILRepack.MSBuild.Task.targets')" />
 </Project>
