@@ -371,9 +371,9 @@ namespace ILRepack.MSBuild.Task
         /// <returns></returns>
         private string BuildPath(string path)
         {
-            var solutionDir = Path.GetDirectoryName(BuildEngine.ProjectFileOfTaskNode);
-            return (string.IsNullOrEmpty(path) || solutionDir == null) ? null :
-                Path.Combine(solutionDir, path);
+            var workDir = Directory.GetCurrentDirectory();
+            return (string.IsNullOrEmpty(path) || workDir == null) ? null :
+                Path.Combine(workDir, path);
         }
         #endregion
 
