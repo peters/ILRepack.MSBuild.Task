@@ -202,7 +202,7 @@ Task options
             Parallel 
         </td>
         <td>
-            Pause execution once completed (good for debugging)
+            Use as many CPUs as possible to merge the assemblies
         </td>
     </tr>
 	<tr>
@@ -218,7 +218,7 @@ Task options
             PrimaryAssemblyFile 
         </td>
         <td>
-            Used in conjunction with Interalize to specify the main assembly filename
+            Used in conjunction with Internalize to specify the main assembly filename
         </td>
     </tr>
 	<tr>
