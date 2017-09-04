@@ -36,7 +36,10 @@ using System.IO;
 using System.Linq;
 using ILRepacking;
 using Microsoft.Build.Framework;
+using Mono.Cecil;
 using ILogger = ILRepacking.ILogger;
+using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 
 namespace ILRepack.MSBuild.Task
 {
@@ -336,7 +339,8 @@ namespace ILRepack.MSBuild.Task
                     AllowWildCards = Wildcards,
                     InputAssemblies = assemblies,
                     SearchDirectories = searchPath
-            });
+            // For some reason, ILRepack must be given the logger.
+            }, new ILRepackLogger(Log));
 
             // Attempt to merge assemblies
             try
@@ -390,5 +394,46 @@ namespace ILRepack.MSBuild.Task
         }
         #endregion
 
+    }
+
+    public class ILRepackLogger : ILogger
+    {
+        private readonly TaskLoggingHelper _log;
+
+        public ILRepackLogger(TaskLoggingHelper log)
+        {
+            _log = log;
+        }
+
+        public void Log(Object str)
+        {
+            _log.LogMessage(MessageImportance.Normal, "{0}", str);
+        }
+
+        public void Error(string msg)
+        {
+            _log.LogError(msg);
+        }
+
+        public void Warn(string msg)
+        {
+            _log.LogWarning(msg);
+        }
+
+        public void Info(string msg)
+        {
+            this.Log(msg);
+        }
+
+        public void Verbose(string msg)
+        {
+            this.Log(msg);
+        }
+
+        public bool ShouldLogVerbose { get; set; }
+
+        public void DuplicateIgnored(string ignoredType, Object ignoredObject)
+        {
+        }
     }
 }
