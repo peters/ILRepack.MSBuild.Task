@@ -1,3 +1,0 @@
-[submodule "deps/ilrepack"]
-	path = deps/ilrepack
-	url = https://github.com/peters/il-repack.git

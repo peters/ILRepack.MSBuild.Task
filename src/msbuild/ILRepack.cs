@@ -34,7 +34,9 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 using System.Linq;
+using ILRepacking;
 using Microsoft.Build.Framework;
+using ILogger = ILRepacking.ILogger;
 
 namespace ILRepack.MSBuild.Task
 {
@@ -240,34 +242,9 @@ namespace ILRepack.MSBuild.Task
         /// 
         /// </summary>
         /// <returns></returns>
+
         public override bool Execute()
         {
-
-            _ilMerger = new ILRepacking.ILRepack
-                {
-                    KeyFile = _keyFile,
-                    LogFile = _logFile,
-                    Log = !string.IsNullOrEmpty(_logFile),
-                    LogVerbose = Verbose,
-                    UnionMerge = Union,
-                    DebugInfo = DebugInfo,
-                    CopyAttributes = CopyAttributes,
-                    AttributeFile = AttributeFile,
-                    AllowMultipleAssemblyLevelAttributes = AllowMultiple,
-                    TargetKind = _targetKind,
-                    TargetPlatformVersion = TargetPlatformVersion,
-                    XmlDocumentation = XmlDocumentation,
-                    Internalize = Internalize,
-                    DelaySign = DelaySign,                    
-                    AllowDuplicateResources = AllowDuplicateResources,
-                    AllowZeroPeKind = ZeroPeKind,
-                    Parallel = Parallel,
-                    PauseBeforeExit = PauseBeforeExit,
-                    OutputFile = _outputFile,
-                    PrimaryAssemblyFile = PrimaryAssemblyFile,
-                    AllowWildCards = Wildcards,
-                };
-
             // Attempt to create output directory if it does not exist.
             var outputPath = Path.GetDirectoryName(OutputFile);
             if (outputPath != null && !Directory.Exists(outputPath))
@@ -299,6 +276,7 @@ namespace ILRepack.MSBuild.Task
                 Log.LogMessage(MessageImportance.Normal, "Added assembly {0}", assemblies[i]);
             }
 
+            /* TODO: Find out what this is and fix
             // List of assemblies that should not be internalized
             if (InternalizeExclude != null)
             {
@@ -325,23 +303,47 @@ namespace ILRepack.MSBuild.Task
                     // should not be internalized.
                     _excludeFileTmpPath = Path.GetTempFileName();
                     File.WriteAllLines(_excludeFileTmpPath, internalizeExclude);
-                    _ilMerger.ExcludeFile = _excludeFileTmpPath;
+                    _ilMerger. = _excludeFileTmpPath;
                 }
             }
-
-            _ilMerger.SetInputAssemblies(assemblies);
+            */
 
             // Path that will be used when searching for assemblies to merge
             var searchPath = new List<string> {"."};
             searchPath.AddRange(LibraryPath.Select(iti => BuildPath(iti.ItemSpec)));
-            _ilMerger.SetSearchDirectories(searchPath.ToArray());
+
+            _ilMerger = new ILRepacking.ILRepack(new RepackOptions()
+            {
+                    KeyFile = _keyFile,
+                    LogFile = _logFile,
+                    Log = !string.IsNullOrEmpty(_logFile),
+                    LogVerbose = Verbose,
+                    UnionMerge = Union,
+                    DebugInfo = DebugInfo,
+                    CopyAttributes = CopyAttributes,
+                    AttributeFile = AttributeFile,
+                    AllowMultipleAssemblyLevelAttributes = AllowMultiple,
+                    TargetKind = _targetKind,
+                    TargetPlatformVersion = TargetPlatformVersion,
+                    XmlDocumentation = XmlDocumentation,
+                    Internalize = Internalize,
+                    DelaySign = DelaySign,                    
+                    AllowDuplicateResources = AllowDuplicateResources,
+                    AllowZeroPeKind = ZeroPeKind,
+                    Parallel = Parallel,
+                    PauseBeforeExit = PauseBeforeExit,
+                    OutputFile = _outputFile,
+                    AllowWildCards = Wildcards,
+                    InputAssemblies = assemblies,
+                    SearchDirectories = searchPath
+            });
 
             // Attempt to merge assemblies
             try
             {
-                Log.LogMessage(MessageImportance.Normal, "Merging {0} assemb{1} to '{2}'.", 
+                Log.LogMessage(MessageImportance.Normal, "Merging {0} assembl{1} to '{2}'.", 
                     _assemblies.Length, (_assemblies.Length != 1) ? "ies" : "y", _outputFile);
-                _ilMerger.Merge();
+                _ilMerger.Repack();
             }
             catch (Exception e)
             {
