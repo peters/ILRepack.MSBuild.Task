@@ -14,31 +14,40 @@ Supported build tools
 Usage - MSBuild
 ============
 ```
-<!-- ILRepack -->
-<Target Name="AfterBuild" Condition="'$(Configuration)' == 'Release'">
-	
-   <ItemGroup>
-	<InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge1.dll" />
-	<InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge2.dll" />
-	<InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge3.dll" />
-   </ItemGroup>
-   
-   <ItemGroup>
-    <!-- Must be a fully qualified name -->
-    <DoNotInternalizeAssemblies Include="ExampleAssemblyToMerge3" />
-   </ItemGroup>
+<Project Sdk="Microsoft.NET.Sdk">
 
-   <ILRepack 
-    Parallel="true"
-    Internalize="true"
-	InternalizeExclude="@(DoNotInternalizeAssemblies)"
-	InputAssemblies="@(InputAssemblies)"
-	TargetKind="Dll"
-	OutputFile="$(OutputPath)\$(AssemblyName).dll"
-   />
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
 
-</Target>
-<!-- /ILRepack -->
+    <ItemGroup>
+        <PackageReference Include="ILRepack.MSBuild.Task" />
+    </ItemGroup>
+
+    <Target Name="ILRepackThisAssembly" AfterTargets="Build">
+
+        <ItemGroup>
+            <InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge1.dll" />
+            <InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge2.dll" />
+            <InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge3.dll" />
+        </ItemGroup>
+
+        <ItemGroup>
+            <!-- Must use fully qualified assembly name -->
+            <DoNotInternalizeAssemblies Include="ExampleAssemblyToMerge3" />
+        </ItemGroup>
+
+        <ILRepack
+            Parallel="true"
+            Internalize="true"
+            InternalizeExclude="@(DoNotInternalizeAssemblies)"
+            InputAssemblies="@(InputAssemblies)"
+            TargetKind="Dll"
+            OutputFile="$(OutputPath)\$(AssemblyName).dll" />
+
+    </Target>
+
+</Project>
 ```
 
 Task options

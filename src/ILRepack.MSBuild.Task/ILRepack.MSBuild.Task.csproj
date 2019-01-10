@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.0;netstandard2.0;net46</TargetFrameworks>
+    <RootNamespace>ILRepack.MSBuild.Task</RootNamespace>
+    <AssemblyName>ILRepack.MSBuild.Task</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <LangVersion>7.3</LangVersion>
+    <Version>0.0.0</Version>
+    <IsNetFullFramework Condition="$(TargetFramework.Contains('netstandard')) OR $(TargetFramework.Contains('netcoreapp'))">false</IsNetFullFramework>
+    <IsNetFullFramework Condition="'$(IsNetFullFramework)' == ''">true</IsNetFullFramework>
+    <DefineConstants Condition="'$(IsNetFullFramework)' == 'true'">$(DefineConstants);ISNETFULLFRAMEWORK;</DefineConstants>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PackageId>ILRepack.MSBuild.Task</PackageId>
+    <Description>MSBuild task for ILRepack which is an open-source alternative to ILMerge.</Description>
+    <Platforms>AnyCPU</Platforms>
+    <Authors>Peter Rekdal Sunde</Authors>
+    <Product>ILRepack.MSBuild.Task</Product>
+    <Copyright>Copyright © Peter Rekdal Sunde</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/peters/ILRepack.MSBuild.Task</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/peters/ILRepack.MSBuild.Task.git</RepositoryUrl>
+    <PackageReleaseNotes>See $(PackageProjectUrl)/blob/master/CHANGELOG.md#v$(VersionPrefix.Replace('.','')) for release notes.</PackageReleaseNotes>
+    <RepositoryType>git</RepositoryType>
+    <IsPackable>true</IsPackable>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <LangVersion>7.3</LangVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.17-pre</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="ILRepack.MSBuild.Task.Targets" Pack="true" Link="ILRepack.MSBuild.Task.Targets" PackagePath="\lib\$(TargetFramework)\ILRepack.MSBuild.Task.Targets">
+      <Visible>false</Visible>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="nupkgs\**" />
+    <EmbeddedResource Remove="nupkgs\**" />
+    <None Remove="nupkgs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.9.20">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\deps\ilrepack\deps\bamlparser\BamlParser.csproj" />
+    <ProjectReference Include="..\..\deps\ilrepack\deps\cecil\Mono.Cecil.csproj" />
+    <ProjectReference Include="..\..\deps\ilrepack\deps\fasterflect\src\Fasterflect.Netstandard\Fasterflect.Netstandard.csproj" />
+    <ProjectReference Include="..\..\deps\ilrepack\ILRepack\ILRepack.csproj" />
+  </ItemGroup>
+
+</Project>

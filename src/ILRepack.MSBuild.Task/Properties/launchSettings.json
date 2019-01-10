@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "ILRepack.MSBuild.Task": {
+      "commandName": "Project"
+    },
+    "ilrepack.exe": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Users\\peters\\Documents\\GitHub\\ILRepack.MSBuild.Task2\\build\\ilrepack\\ILRepack.exe",
+      "commandLineArgs": "/target:exe /internalize build\\ilrepack\\ilrepack.exe build\\ilrepack\\bamlparser.dll build\\ilrepack\\fasterflect.netstandard.dll build\\ilrepack\\mono.cecil.dll build\\ilrepack\\mono.posix.dll /out:./build/ilrepack/ilrepack.exe",
+      "workingDirectory": "C:\\Users\\peters\\Documents\\GitHub\\ILRepack.MSBuild.Task2\\build\\ilrepack"
+    }
+  }
+}
