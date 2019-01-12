@@ -19,6 +19,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Cecil", "..\deps\ilrepack\deps\cecil\Mono.Cecil.csproj", "{6EFEE77F-02D4-4396-911B-AB00135E2D13}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILRepack.MSBuild.Task.Tests", "ILRepack.MSBuild.Task.Tests\ILRepack.MSBuild.Task.Tests.csproj", "{BEA10F76-E4A1-47A2-9709-76E96443422F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6EFEE77F-02D4-4396-911B-AB00135E2D13} = {6EFEE77F-02D4-4396-911B-AB00135E2D13}
+		{AE5799C7-D733-46B2-9854-268CA5D6BC67} = {AE5799C7-D733-46B2-9854-268CA5D6BC67}
+		{D1416FFF-30BD-46E8-A695-329FF9DF8271} = {D1416FFF-30BD-46E8-A695-329FF9DF8271}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fasterflect.Netstandard", "..\deps\ilrepack\deps\fasterflect\Fasterflect.Netstandard.csproj", "{D1416FFF-30BD-46E8-A695-329FF9DF8271}"
 EndProject

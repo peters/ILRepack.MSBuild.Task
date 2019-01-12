@@ -3,9 +3,9 @@
   <PropertyGroup>
     <OsPlatform Condition="$([MSBuild]::IsOsPlatform('Windows'))">Windows</OsPlatform>
     <OsPlatform Condition="'$(OsPlatform)' == '' AND !$([MSBuild]::IsOsPlatform('Windows'))">Unix</OsPlatform>
-    <TargetFrameworks Condition="'$(PackageForRelease)' != 'true' AND '$(OsPlatform)' == 'Windows'">netcoreapp2.1;netstandard2.0;net46</TargetFrameworks>
-    <TargetFrameworks Condition="'$(PackageForRelease)' != 'true' AND '$(OsPlatform)' != 'Windows'">netcoreapp2.2;netstandard2.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(PackageForRelease)' == 'true'">netstandard2.0;net46</TargetFrameworks>
+    <TargetFrameworks Condition="'$(ILRepackMSBuildTaskPackageForRelease)' != 'true' AND '$(OsPlatform)' == 'Windows'">netcoreapp2.1;netstandard2.0;net46</TargetFrameworks>
+    <TargetFrameworks Condition="'$(ILRepackMSBuildTaskPackageForRelease)' != 'true' AND '$(OsPlatform)' != 'Windows'">netcoreapp2.2;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(ILRepackMSBuildTaskPackageForRelease)' == 'true'">netcoreapp2.1;netstandard2.0;net46</TargetFrameworks>
     <RootNamespace>ILRepack.MSBuild.Task</RootNamespace>
     <AssemblyName>ILRepack.MSBuild.Task</AssemblyName>
     <IsPackable>false</IsPackable>
@@ -48,7 +48,7 @@
   <ItemGroup>
     <Content Include="ILRepack.MSBuild.Task.TargetFramework.props" Pack="true" PackagePath="build\ILRepack.MSBuild.Task.props" />
     <Content Include="ILRepack.MSBuild.Task.TargetFrameworks.props" Pack="true" PackagePath="buildMultiTargeting\ILRepack.MSBuild.Task.props" />
-    <Content Include="..\..\build\ilrepack\windows\ilrepack.exe" Pack="true" PackagePath="tools\" CopyToOutputDirectory="Always" Condition="'$(OsPlatform)' == 'Windows'" />
+    <Content Include="..\..\build\ilrepack\windows\ilrepack.exe" Pack="true" PackagePath="tools\" CopyToOutputDirectory="Always" Condition="'$(ILRepackMSBuildTaskPackageForRelease)' == 'true' AND '$(OsPlatform)' == 'Windows'" />
   </ItemGroup>
 
   <ItemGroup>
@@ -73,22 +73,16 @@
     <ProjectReference Update="@(ProjectReference)" PrivateAssets="All" />
   </ItemGroup>
 
-  <Target Name="ILRepackThisAssembly" AfterTargets="Build" Condition="'$(PackageForRelease)' == 'true' AND '$(OsPlatform)' == 'Windows'">
+  <Target Name="ILRepackThisAssembly" AfterTargets="Build" Condition="'$(ILRepackMSBuildTaskPackageForRelease)' == 'true' AND '$(OsPlatform)' == 'Windows'">
 
     <PropertyGroup> 
       <InputAssemblies Condition="'$(IsNetFullFramework)' == 'true'">
-        bamlparser.dll 
-        fasterflect.netstandard.dll 
         ilrepack.dll
-        mono.cecil.dll 
       </InputAssemblies>
       <InputAssemblies Condition="$(TargetFramework.Contains('netstandard'))">
-        bamlparser.dll 
-        fasterflect.netstandard.dll 
         ilrepack.dll
         microsoft.build.framework.dll 
         microsoft.build.utilities.core.dll 
-        mono.cecil.dll
         system.collections.immutable.dll
         system.reflection.emit.ilgeneration.dll
         system.reflection.emit.lightweight.dll
@@ -99,12 +93,8 @@
         system.threading.thread.dll
       </InputAssemblies>
       <InputAssemblies Condition="$(TargetFramework.Contains('netcoreapp'))">
-        bamlparser.dll 
-        fasterflect.netstandard.dll 
-        ilrepack.dll
         microsoft.build.framework.dll 
         microsoft.build.utilities.core.dll
-        mono.cecil.dll
         system.text.encoding.codepages.dll
       </InputAssemblies>
       <WorkingDirectory>$(OutputPath)</WorkingDirectory>
