@@ -18,7 +18,7 @@ namespace ILRepack.MSBuild.Task
 
         public void Log(object str)
         {
-            _task.Log.LogMessage(MessageImportance.Normal, str as string, str);
+            _task.Log.LogMessage(MessageImportance.High, str as string, str);
         }
 
         public void Error(string msg)
@@ -33,12 +33,12 @@ namespace ILRepack.MSBuild.Task
 
         public void Info(string msg)
         {
-            _task.Log.LogMessage(MessageImportance.Normal, msg);
+            _task.Log.LogMessage(MessageImportance.High, msg);
         }
 
         public void Verbose(string msg)
         {
-            _task.Log.LogMessage(MessageImportance.Normal, msg);
+            _task.Log.LogMessage(MessageImportance.High, msg);
         }
 
         public void DuplicateIgnored(string ignoredType, object ignoredObject)

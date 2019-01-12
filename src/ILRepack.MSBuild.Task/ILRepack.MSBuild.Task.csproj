@@ -1,17 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;netstandard2.0;net46</TargetFrameworks>
-    <!-- Support compiling on macOS and Linux because .NET Framework is not available -->
-    <TargetFrameworks Condition="$(OS) != 'Windows_NT'">netcoreapp2.1</TargetFrameworks>
+    <OsPlatform Condition="$([MSBuild]::IsOsPlatform('Windows'))">Windows</OsPlatform>
+    <OsPlatform Condition="'$(OsPlatform)' == '' AND !$([MSBuild]::IsOsPlatform('Windows'))">Unix</OsPlatform>
+    <TargetFrameworks Condition="'$(PackageForRelease)' != 'true' AND '$(OsPlatform)' == 'Windows'">netcoreapp2.1;netstandard2.0;net46</TargetFrameworks>
+    <TargetFrameworks Condition="'$(PackageForRelease)' != 'true' AND '$(OsPlatform)' != 'Windows'">netcoreapp2.2;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(PackageForRelease)' == 'true'">netstandard2.0;net46</TargetFrameworks>
     <RootNamespace>ILRepack.MSBuild.Task</RootNamespace>
     <AssemblyName>ILRepack.MSBuild.Task</AssemblyName>
     <IsPackable>false</IsPackable>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <LangVersion>7.3</LangVersion>
     <Version>0.0.0</Version>
-    <IsNetFullFramework Condition="$(TargetFramework.Contains('netstandard')) OR $(TargetFramework.Contains('netcoreapp'))">false</IsNetFullFramework>
-    <IsNetFullFramework Condition="'$(IsNetFullFramework)' == ''">true</IsNetFullFramework>
+    <IsNetFullFramework Condition="$(TargetFramework.Contains('netcoreapp')) OR $(TargetFramework.Contains('netcoreapp'))">false</IsNetFullFramework>
+    <IsNetFullFramework Condition="'$(OsPlatform)' == 'Windows' AND '$(IsNetFullFramework)' == ''">true</IsNetFullFramework>
     <DefineConstants Condition="'$(IsNetFullFramework)' == 'true'">$(DefineConstants);ISNETFULLFRAMEWORK;</DefineConstants>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <PackageId>ILRepack.MSBuild.Task</PackageId>
@@ -28,16 +30,25 @@
     <PackageReleaseNotes>See $(PackageProjectUrl)/blob/master/CHANGELOG.md#v$(VersionPrefix.Replace('.','')) for release notes.</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <IsPackable>true</IsPackable>
+    <IsTestProject>false</IsTestProject>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <LangVersion>7.3</LangVersion>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.17-pre</Version>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Version>2.0.0-pre0</Version>
+    <!--<PackageOutputPath>$(MSBuildThisFileDirectory)..\..\nupkgs</PackageOutputPath>-->
+    <PackageOutputPath>c:\nupkgs</PackageOutputPath>
+    <!-- Suppresses the warnings about the package not having assemblies in lib/*/.dll.-->
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <!-- Change the default location where NuGet will put the build output -->
+    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionSuffix>build$([System.DateTime]::Now.ToString('yyyyMMdd-HHmm'))</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="ILRepack.MSBuild.Task.Targets" Pack="true" Link="ILRepack.MSBuild.Task.Targets" PackagePath="\lib\$(TargetFramework)\ILRepack.MSBuild.Task.Targets">
-      <Visible>false</Visible>
-    </Content>
+    <Content Include="ILRepack.MSBuild.Task.TargetFramework.props" Pack="true" PackagePath="build\ILRepack.MSBuild.Task.props" />
+    <Content Include="ILRepack.MSBuild.Task.TargetFrameworks.props" Pack="true" PackagePath="buildMultiTargeting\ILRepack.MSBuild.Task.props" />
+    <Content Include="..\..\build\ilrepack\windows\ilrepack.exe" Pack="true" PackagePath="tools\" CopyToOutputDirectory="Always" Condition="'$(OsPlatform)' == 'Windows'" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,19 +58,60 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.9.20">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.9.20" />
+
+    <!-- Marks all packages as 'local only' so they don't end up in the nuspec. -->
+    <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\deps\ilrepack\deps\bamlparser\BamlParser.csproj" />
     <ProjectReference Include="..\..\deps\ilrepack\deps\cecil\Mono.Cecil.csproj" />
-    <ProjectReference Include="..\..\deps\ilrepack\deps\fasterflect\src\Fasterflect.Netstandard\Fasterflect.Netstandard.csproj" />
+    <ProjectReference Include="..\..\deps\ilrepack\deps\fasterflect\Fasterflect.Netstandard.csproj" />
     <ProjectReference Include="..\..\deps\ilrepack\ILRepack\ILRepack.csproj" />
+    <ProjectReference Update="@(ProjectReference)" PrivateAssets="All" />
   </ItemGroup>
+
+  <Target Name="ILRepackThisAssembly" AfterTargets="Build" Condition="'$(PackageForRelease)' == 'true' AND '$(OsPlatform)' == 'Windows'">
+
+    <PropertyGroup> 
+      <InputAssemblies Condition="'$(IsNetFullFramework)' == 'true'">
+        bamlparser.dll 
+        fasterflect.netstandard.dll 
+        ilrepack.dll
+        mono.cecil.dll 
+      </InputAssemblies>
+      <InputAssemblies Condition="$(TargetFramework.Contains('netstandard'))">
+        bamlparser.dll 
+        fasterflect.netstandard.dll 
+        ilrepack.dll
+        microsoft.build.framework.dll 
+        microsoft.build.utilities.core.dll 
+        mono.cecil.dll
+        system.collections.immutable.dll
+        system.reflection.emit.ilgeneration.dll
+        system.reflection.emit.lightweight.dll
+        system.runtime.interopservices.runtimeinformation.dll
+        system.runtime.serialization.primitives.dll
+        system.text.encoding.codepages.dll
+        system.threading.dll
+        system.threading.thread.dll
+      </InputAssemblies>
+      <InputAssemblies Condition="$(TargetFramework.Contains('netcoreapp'))">
+        bamlparser.dll 
+        fasterflect.netstandard.dll 
+        ilrepack.dll
+        microsoft.build.framework.dll 
+        microsoft.build.utilities.core.dll
+        mono.cecil.dll
+        system.text.encoding.codepages.dll
+      </InputAssemblies>
+      <WorkingDirectory>$(OutputPath)</WorkingDirectory>
+    </PropertyGroup>
+
+    <Exec IgnoreExitCode="true" WorkingDirectory="$(WorkingDirectory)" Command="ilrepack.exe /target:library /internalize $(AssemblyName).dll $([System.Text.RegularExpressions.Regex]::Replace( $(InputAssemblies), '\r\n', ' ' ) ) /out:./$(AssemblyName).dll" />
+    
+  </Target>
 
 </Project>

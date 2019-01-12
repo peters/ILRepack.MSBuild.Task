@@ -1,11 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28407.52
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILRepack.MSBuild.Task", "ILRepack.MSBuild.Task\ILRepack.MSBuild.Task.csproj", "{61173234-2FC8-4A77-A48C-DD7F09BE2F37}"
 	ProjectSection(ProjectDependencies) = postProject
-		{3C9D7612-2214-446E-B16F-C34CD063CCE7} = {3C9D7612-2214-446E-B16F-C34CD063CCE7}
 		{6EFEE77F-02D4-4396-911B-AB00135E2D13} = {6EFEE77F-02D4-4396-911B-AB00135E2D13}
 		{02CBF5BE-3458-4178-BF66-0337C5CCB802} = {02CBF5BE-3458-4178-BF66-0337C5CCB802}
 		{AE5799C7-D733-46B2-9854-268CA5D6BC67} = {AE5799C7-D733-46B2-9854-268CA5D6BC67}
@@ -19,9 +18,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BamlParser", "..\deps\ilrep
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.Cecil", "..\deps\ilrepack\deps\cecil\Mono.Cecil.csproj", "{6EFEE77F-02D4-4396-911B-AB00135E2D13}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fasterflect.Netstandard", "..\deps\ilrepack\deps\fasterflect\src\Fasterflect.Netstandard\Fasterflect.Netstandard.csproj", "{3C9D7612-2214-446E-B16F-C34CD063CCE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ILRepack.MSBuild.Task.Tests", "ILRepack.MSBuild.Task.Tests\ILRepack.MSBuild.Task.Tests.csproj", "{BEA10F76-E4A1-47A2-9709-76E96443422F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ILRepack.MSBuild.Task.Tests", "ILRepack.MSBuild.Task.Tests\ILRepack.MSBuild.Task.Tests.csproj", "{BEA10F76-E4A1-47A2-9709-76E96443422F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fasterflect.Netstandard", "..\deps\ilrepack\deps\fasterflect\Fasterflect.Netstandard.csproj", "{D1416FFF-30BD-46E8-A695-329FF9DF8271}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,14 +62,6 @@ Global
 		{6EFEE77F-02D4-4396-911B-AB00135E2D13}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6EFEE77F-02D4-4396-911B-AB00135E2D13}.Release|x86.ActiveCfg = Release|Any CPU
 		{6EFEE77F-02D4-4396-911B-AB00135E2D13}.Release|x86.Build.0 = Release|Any CPU
-		{3C9D7612-2214-446E-B16F-C34CD063CCE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3C9D7612-2214-446E-B16F-C34CD063CCE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3C9D7612-2214-446E-B16F-C34CD063CCE7}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{3C9D7612-2214-446E-B16F-C34CD063CCE7}.Debug|x86.Build.0 = Debug|Any CPU
-		{3C9D7612-2214-446E-B16F-C34CD063CCE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3C9D7612-2214-446E-B16F-C34CD063CCE7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3C9D7612-2214-446E-B16F-C34CD063CCE7}.Release|x86.ActiveCfg = Release|Any CPU
-		{3C9D7612-2214-446E-B16F-C34CD063CCE7}.Release|x86.Build.0 = Release|Any CPU
 		{BEA10F76-E4A1-47A2-9709-76E96443422F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BEA10F76-E4A1-47A2-9709-76E96443422F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEA10F76-E4A1-47A2-9709-76E96443422F}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -79,6 +70,14 @@ Global
 		{BEA10F76-E4A1-47A2-9709-76E96443422F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BEA10F76-E4A1-47A2-9709-76E96443422F}.Release|x86.ActiveCfg = Release|Any CPU
 		{BEA10F76-E4A1-47A2-9709-76E96443422F}.Release|x86.Build.0 = Release|Any CPU
+		{D1416FFF-30BD-46E8-A695-329FF9DF8271}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1416FFF-30BD-46E8-A695-329FF9DF8271}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1416FFF-30BD-46E8-A695-329FF9DF8271}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D1416FFF-30BD-46E8-A695-329FF9DF8271}.Debug|x86.Build.0 = Debug|Any CPU
+		{D1416FFF-30BD-46E8-A695-329FF9DF8271}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1416FFF-30BD-46E8-A695-329FF9DF8271}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1416FFF-30BD-46E8-A695-329FF9DF8271}.Release|x86.ActiveCfg = Release|Any CPU
+		{D1416FFF-30BD-46E8-A695-329FF9DF8271}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,7 +86,7 @@ Global
 		{02CBF5BE-3458-4178-BF66-0337C5CCB802} = {F162CCB9-6D67-45EC-9992-EA325B32030A}
 		{AE5799C7-D733-46B2-9854-268CA5D6BC67} = {F162CCB9-6D67-45EC-9992-EA325B32030A}
 		{6EFEE77F-02D4-4396-911B-AB00135E2D13} = {F162CCB9-6D67-45EC-9992-EA325B32030A}
-		{3C9D7612-2214-446E-B16F-C34CD063CCE7} = {F162CCB9-6D67-45EC-9992-EA325B32030A}
+		{D1416FFF-30BD-46E8-A695-329FF9DF8271} = {F162CCB9-6D67-45EC-9992-EA325B32030A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6293BC92-ECF5-4B35-977F-E9D5D122C2F0}

@@ -37,24 +37,31 @@ using System.IO;
 using System.Linq;
 using Microsoft.Build.Framework;
 using ILRepacking;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.Build.Utilities;
+
+[assembly: InternalsVisibleTo("ILRepack.MSBuild.Task.Tests")]
 
 namespace ILRepack.MSBuild.Task
 {
+
 
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class ILRepack : Microsoft.Build.Utilities.Task, IDisposable
     {
-
-        string _attributeFile;
         string _logFile;
-        string _outputFile;
+        string _outputAssembly;
+#if NETFULLFRAMEWORK
         string _keyFile;
-        ITaskItem[] _assemblies = new ITaskItem[0];
-        ILRepacking.ILRepack.Kind _targetKind;
+#endif
+        ITaskItem[] _inputAssemblies = new ITaskItem[0];
+        ILRepacking.ILRepack.Kind _outputType;
         string _excludeFileTmpPath;
 
+#if NETFULLFRAMEWORK
         /// <summary>
         /// Specifies a keyfile to sign the output assembly
         /// </summary>
@@ -63,6 +70,13 @@ namespace ILRepack.MSBuild.Task
             get => _keyFile;
             set => _keyFile = BuildPath(ConvertEmptyToNull(value));
         }
+#endif
+
+        internal IBuildEngine FakeBuildEngine
+        {
+            get => BuildEngine;
+            set => BuildEngine = value;
+        }
 
         /// <summary>
         /// Specifies a logfile to output log information.
@@ -70,7 +84,7 @@ namespace ILRepack.MSBuild.Task
         public virtual string LogFile
         {
             get => _logFile;
-            set => _logFile = BuildPath(ConvertEmptyToNull(value));
+            set => _logFile = value;
         }
 
         /// <summary>
@@ -81,16 +95,12 @@ namespace ILRepack.MSBuild.Task
         /// <summary>
         /// Enable/disable symbol file generation
         /// </summary>
-        public virtual bool DebugInfo { get; set; }
+        public virtual bool DebugInfo { get; set; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
         /// <summary>
-        /// Take assembly attributes from the given assembly file
+        /// Read assembly attributes from the given assembly file
         /// </summary>
-        public virtual string AttributeFile
-        {
-            get => _attributeFile;
-            set => _attributeFile = BuildPath(ConvertEmptyToNull(value));
-        }
+        public virtual string AttributeAssembly { get; set; }
 
         /// <summary>
         /// Copy assembly attributes (by default only the
@@ -104,31 +114,40 @@ namespace ILRepack.MSBuild.Task
         public virtual bool AllowMultiple { get; set; }
 
         /// <summary>
-        /// Target assembly kind (Exe|Dll|WinExe|SameAsPrimaryAssembly)
+        /// Target assembly kind (Exe|Dll|Library|WinExe|SameAsPrimaryAssembly)
         /// </summary>
-        public virtual string TargetKind
+        [Required]
+        public virtual string OutputType
         {
-            get => _targetKind.ToString();
+            get => _outputType.ToString();
             set
             {
-                if (Enum.IsDefined(typeof(ILRepacking.ILRepack.Kind), value))
+                var targetKind = value?.ToLowerInvariant();
+                switch (targetKind)
                 {
-                    _targetKind = (ILRepacking.ILRepack.Kind)Enum.Parse(typeof(ILRepacking.ILRepack.Kind), value);
-                }
-                else
-                {
-                    Log.LogWarning("TargetKind should be [Exe|Dll|" +
-                                   "WinExe|SameAsPrimaryAssembly]; " +
-                                   "set to SameAsPrimaryAssembly");
-                    _targetKind = ILRepacking.ILRepack.Kind.SameAsPrimaryAssembly;
+                    default:
+                        _outputType = ILRepacking.ILRepack.Kind.SameAsPrimaryAssembly;
+                        break;
+                    case "dll":
+                    case "library":
+                        _outputType = ILRepacking.ILRepack.Kind.Dll;
+                        break;
+                    case "exe":
+                        _outputType = ILRepacking.ILRepack.Kind.Exe;
+                        break;
+                    case "winexe":
+                        _outputType = ILRepacking.ILRepack.Kind.WinExe;
+                        break;
                 }
             }
         }
 
+#if NETFULLFRAMEWORK
         /// <summary>
         /// Target platform (v1, v1.1, v2, v4 supported)
         /// </summary>
         public virtual string TargetPlatformVersion { get; set; }
+#endif
 
         /// <summary>
         /// Merge assembly xml documentation
@@ -139,37 +158,37 @@ namespace ILRepack.MSBuild.Task
         /// List of paths to use as "include directories" when
         /// attempting to merge assemblies
         /// </summary>
-        public virtual ITaskItem[] SearchDirectories { get; set; } = new ITaskItem[0];
+        [Required]
+        public virtual string WorkingDirectory { get; set; }
 
         /// <summary>
         /// Set all types but the ones from
         /// the first assembly 'internal'
         /// </summary>
-        public virtual bool Internalize { get; set; }
+        public virtual bool Internalize { get; set; } = true;
 
         /// <summary>
         /// List of assemblies that should not be interalized.
         /// </summary>
-        public virtual ITaskItem[] InternalizeExclude { get; set; }
+        public virtual ITaskItem[] InternalizeExcludeAssemblies { get; set; }
 
         /// <summary>
         /// Output name for merged assembly
         /// </summary>
         [Required]
-        public virtual string OutputFile
+        public virtual string OutputAssembly
         {
-            get => _outputFile;
-            set => _outputFile = BuildPath(ConvertEmptyToNull(value));
+            get => _outputAssembly;
+            set => _outputAssembly = value;
         }
 
         /// <summary>
         /// List of assemblies that will be merged
         /// </summary>
-        [Required]
         public virtual ITaskItem[] InputAssemblies
         {
-            get => _assemblies;
-            set => _assemblies = value;
+            get => _inputAssemblies;
+            set => _inputAssemblies = value;
         }
 
         /// <summary>
@@ -197,12 +216,8 @@ namespace ILRepack.MSBuild.Task
         /// Name of primary assembly when used in conjunction
         /// with Internalize.
         /// </summary>
-        public virtual string PrimaryAssemblyFile { get; set; }
-
-        /// <summary>
-        /// Pause execution once completed (good for debugging)
-        /// </summary>
-        public virtual bool PauseBeforeExit { get; set; }
+        [Required]
+        public virtual string MainAssembly { get; set; }
 
         /// <summary>
         /// Additional debug information during merge that
@@ -214,141 +229,140 @@ namespace ILRepack.MSBuild.Task
         /// Allows (and resolves) file wildcards (e.g. `*`.dll)
         /// in input assemblies
         /// </summary>
-        public virtual bool Wildcards { get; set; }
+        public virtual bool WilcardInputAssemblies { get; set; }
 
         public override bool Execute()
         {
+            if (DebugInfo && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Log.LogError($"{nameof(ILRepacking.ILRepack)}: PDB (debug info) writer is only available on Windows.");
+                return false;
+            }
 
-            var repackOptions = new RepackOptions
+            WorkingDirectory = WorkingDirectory == null ? null : Path.GetFullPath(WorkingDirectory);
+            if (WorkingDirectory == null || !Directory.Exists(WorkingDirectory))
             {
-                KeyFile = _keyFile,
-                LogFile = _logFile,
-                Log = !string.IsNullOrEmpty(_logFile),
-                LogVerbose = Verbose,
-                UnionMerge = Union,
-                DebugInfo = DebugInfo,
-                CopyAttributes = CopyAttributes,
-                AttributeFile = AttributeFile,
-                AllowMultipleAssemblyLevelAttributes = AllowMultiple,
-                TargetKind = _targetKind,
-                TargetPlatformVersion = TargetPlatformVersion,
-                XmlDocumentation = XmlDocumentation,
-                Internalize = Internalize,
-                DelaySign = DelaySign,
-                AllowDuplicateResources = AllowDuplicateResources,
-                AllowZeroPeKind = ZeroPeKind,
-                Parallel = Parallel,
-                PauseBeforeExit = PauseBeforeExit,
-                OutputFile = _outputFile,
-                AllowWildCards = Wildcards,
-                
-            };
-            
-            var outputPath = Path.GetDirectoryName(OutputFile);
-            if (outputPath != null && !Directory.Exists(outputPath))
+                Log.LogError($"{nameof(ILRepack)}: The working directory you specified does not exist: {WorkingDirectory}.");
+                return false;
+            }
+
+            MainAssembly = MainAssembly == null ? null : Path.IsPathRooted(MainAssembly) ? MainAssembly : Path.Combine(WorkingDirectory, MainAssembly);
+            if (MainAssembly == null || !File.Exists(MainAssembly))
             {
-                try
+                Log.LogError($"{nameof(ILRepack)}: The main assembly you specified does not exist: {MainAssembly}.");
+                return false;
+            }
+
+            OutputAssembly = OutputAssembly == null ? null : Path.IsPathRooted(OutputAssembly) ? OutputAssembly : Path.Combine(WorkingDirectory, Path.GetFileName(OutputAssembly));
+            if (OutputAssembly == null)
+            {
+                Log.LogError($"{nameof(ILRepack)}: Please specify a output assembly.");
+                return false;
+            }
+
+            if (WilcardInputAssemblies)
+            {
+                if (InputAssemblies == null || !InputAssemblies.Any())
                 {
-                    Directory.CreateDirectory(outputPath);
-                }
-                catch (Exception ex)
-                {
-                    Log.LogErrorFromException(ex);
+                    Log.LogError($"{nameof(ILRepack)}: Please specify wildcards using {nameof(InputAssemblies)} property. E.g. *.dll");
                     return false;
                 }
             }
-
-            var assemblies = new List<string>();
-            for (var i = 0; i < _assemblies.Length; i++)
+            else
             {
-                var assemblyName = _assemblies[i].ItemSpec?.ToLowerInvariant();
-
-                if (string.IsNullOrEmpty(assemblyName))
+                for (var index = 0; index < InputAssemblies.Length; index++)
                 {
-                    Log.LogErrorFromException(new Exception("Empty assembly path found at index: " + i));
-                    return false;
-                }
-
-                if (assemblies.Contains(assemblyName))
-                {
-                    Log.LogError("Duplicate assembly path found at index: ");
-                    return false;
-                }
-
-                assemblies.Add(assemblyName);
-
-                Log.LogMessage(MessageImportance.Normal, "Added assembly {0}", assemblies[i]);
-            }
-
-            var searchDirectories = new List<string>();
- 
-            if (SearchDirectories != null)
-            {
-                for (var i = 0; i < SearchDirectories.Length; i++)
-                {
-                    searchDirectories.Add(SearchDirectories[i].ItemSpec);
-
-                    if (string.IsNullOrEmpty(searchDirectories[i]))
+                    var inputAssembly = InputAssemblies[index]?.ItemSpec;
+                    var inputAssemblyWorkingDirectory =  Path.IsPathRooted(inputAssembly) ? inputAssembly : Path.Combine(WorkingDirectory, inputAssembly ?? string.Empty);
+                    if (!File.Exists(inputAssemblyWorkingDirectory))
                     {
-                        Log.LogErrorFromException(new Exception("Empty search directory found at index: " + i));
+                        Log.LogError($"{nameof(ILRepack)}: Unable to resolve input assembly at index {index}: {inputAssemblyWorkingDirectory}.");
                         return false;
                     }
 
-                    Log.LogMessage(MessageImportance.Normal, "Added search directory {0}", searchDirectories[i]);
+                    InputAssemblies[index] = new TaskItem(inputAssemblyWorkingDirectory);
                 }
             }
 
-            if (!searchDirectories.Any())
+            if (InternalizeExcludeAssemblies != null && InternalizeExcludeAssemblies.Any())
             {
-                Log.LogWarning("You should specify at least one search directory. Adding current working directory as a search directory");
-                searchDirectories.Add(".");
-            }
-
-            var inputAssemblies = _assemblies.Select(x => x.ItemSpec.ToString()).Distinct().ToArray();
-            repackOptions.InputAssemblies = inputAssemblies;
-            repackOptions.SearchDirectories = searchDirectories.Select(BuildPath);
-
-            if (InternalizeExclude != null)
-            {
-                var internalizeExclude = new string[InternalizeExclude.Length];
-                if (Internalize)
+                for (var index = 0; index < InternalizeExcludeAssemblies.Length; index++)
                 {
-                    for (var i = 0; i < InternalizeExclude.Length; i++)
+                    var excludeAssembly = InternalizeExcludeAssemblies[index]?.ItemSpec;
+                    var excludeAssemblyWorkingDirectory = Path.IsPathRooted(excludeAssembly) ? excludeAssembly : Path.Combine(WorkingDirectory, excludeAssembly ?? string.Empty);
+                    if (!File.Exists(excludeAssemblyWorkingDirectory))
                     {
-                        internalizeExclude[i] = InternalizeExclude[i].ItemSpec;
-                        if (string.IsNullOrEmpty(internalizeExclude[i]))
-                        {
-                             Log.LogErrorFromException(new Exception("Empty internalize exclude item at index: " + i));
-                             return false;
-                        }
-
-                        if (!File.Exists(internalizeExclude[i]) && !File.Exists(BuildPath(internalizeExclude[i])))
-                        {
-                            Log.LogErrorFromException(new Exception($"Unable to exclude assembly '{internalizeExclude[i]}' because it does not exist."));
-                            return false;
-                        }
-
-                        Log.LogMessage(MessageImportance.Normal,"Assembly {0} is excluded from being internalized.", internalizeExclude[i]);
+                        Log.LogError($"{nameof(ILRepack)}: Unable to resolve exclude assembly at index {index}: {excludeAssemblyWorkingDirectory}.");
+                        return false;
                     }
 
-                    // Create a temporary file with a list of assemblies that
-                    // should not be internalized.
-                    _excludeFileTmpPath = Path.GetTempFileName();
-                    File.WriteAllLines(_excludeFileTmpPath, internalizeExclude);
-                    repackOptions.ExcludeFile = _excludeFileTmpPath;
+                    InternalizeExcludeAssemblies[index] = new TaskItem(excludeAssemblyWorkingDirectory);
                 }
+
+                _excludeFileTmpPath = Path.GetTempFileName();
+
+                File.WriteAllLines(_excludeFileTmpPath, 
+                    InternalizeExcludeAssemblies.Select(x =>
+                    {
+                        // Use forward slashes or ILRepack dies :(
+                        return x.ItemSpec.Replace('\\', '/');
+                    }).ToArray(), new UTF8Encoding(false) /* no byte order marker */);
             }
 
             try
             {
-                Log.LogMessage(MessageImportance.Normal, "Merging {0} assemb{1} to '{2}'.",
-                    _assemblies.Length, _assemblies.Length != 1 ? "ies" : "y", _outputFile);
+                var repackOptions = new RepackOptions
+                {
+                    #if NETFULLFRAMEWORK
+                    KeyFile = _keyFile,
+                    #endif
+                    LogFile = _logFile,
+                    Log = !string.IsNullOrEmpty(_logFile),
+                    LogVerbose = Verbose,
+                    UnionMerge = Union,
+                    DebugInfo = DebugInfo,
+                    CopyAttributes = CopyAttributes,
+                    AttributeFile = AttributeAssembly,
+                    AllowMultipleAssemblyLevelAttributes = AllowMultiple,
+                    TargetKind = _outputType,
+                    #if NETFULLFRAMEWORK
+                    TargetPlatformVersion = TargetPlatformVersion,
+                    #endif
+                    XmlDocumentation = XmlDocumentation,
+                    Internalize = Internalize,
+                    DelaySign = DelaySign,
+                    AllowDuplicateResources = AllowDuplicateResources,
+                    AllowZeroPeKind = ZeroPeKind,
+                    Parallel = Parallel,
+                    OutputFile = _outputAssembly,
+                    AllowWildCards = WilcardInputAssemblies,
+                    InputAssemblies = InputAssemblies.Select(x => x.ItemSpec.ToString()).Distinct().ToArray(),
+                    SearchDirectories = new List<string> {WorkingDirectory},
+                    ExcludeFile =  _excludeFileTmpPath
+                };
 
-                #if !NETFULLFRAMEWORK
-                var ilMerger = new ILRepacking.ILRepack(repackOptions, new ILRepackLogger(this));
-                #else
-                var ilMerger = new ILRepacking.ILRepack(repackOptions);
-                #endif
+                Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Output type: {OutputType}.");
+                Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Internalize: {(Internalize ? "yes" : "no")}.");
+                Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Working directory: {WorkingDirectory}.");
+                Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Main assembly: {Path.GetFileName(MainAssembly)}.");
+                Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Output assembly: {Path.GetFileName(OutputAssembly)}.");
+
+                Log.LogMessage(MessageImportance.High,
+                    WilcardInputAssemblies
+                        ? $"{nameof(ILRepack)}: Input assemblies (wildcards): {string.Join(",", InputAssemblies.Select(x => x.ItemSpec))}."
+                        : $"{nameof(ILRepack)}: Input assemblies ({InputAssemblies.Length}): {string.Join(",", InputAssemblies.Select(x => Path.GetFileName(x.ItemSpec)))}.");
+
+                if (InternalizeExcludeAssemblies != null && InternalizeExcludeAssemblies.Length > 0)
+                {
+                    Log.LogMessage(MessageImportance.High, 
+                        $"{nameof(ILRepack)}: Internalize exclude assemblies ({InternalizeExcludeAssemblies.Length}): " +
+                        $"{string.Join(",", InternalizeExcludeAssemblies.Select(x => Path.GetFileName(x.ItemSpec)))}.");
+                }
+
+                var ilMerger = new ILRepacking.ILRepack(repackOptions, new ILRepackLogger(this)
+                {
+                    ShouldLogVerbose = Verbose
+                });
 
                 ilMerger.Repack();
             }
@@ -361,32 +375,9 @@ namespace ILRepack.MSBuild.Task
             return true;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
-        static string ConvertEmptyToNull(string str)
-        {
-            return string.IsNullOrEmpty(str) ? null : str;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        static string BuildPath(string path)
-        {
-            var workDir = Directory.GetCurrentDirectory();
-            return (string.IsNullOrEmpty(path) || workDir == null) ? null :
-                Path.Combine(workDir, path);
-        }
-
         public void Dispose()
         {
-            // Remove temporary exclude file
-            if (File.Exists(_excludeFileTmpPath))
+            if (_excludeFileTmpPath != null && File.Exists(_excludeFileTmpPath))
             {
                 File.Delete(_excludeFileTmpPath);
             }

@@ -3,16 +3,20 @@
 
 MSBuild task for [ILRepack](https://github.com/gluck/il-repack) which is an open-source alternative to ILMerge.
 
-Install via NuGet
-=================
-	Install-Package ILRepack.MSBuild.Task
+## Install via NuGet
 
-Supported build tools
-=====================
-* MSBuild
+`Install-Package ILRepack.MSBuild.Task`
 
-Usage - MSBuild
-============
+## Supported frameworks
+
+`netcoreapp2.1`
+`netstandard2.0`
+`net46`
+
+NB! You cannot use `OutputType` EXE on .NET Core assemblies is not supported.
+
+### ILRepack a list of assemblies 
+
 ```
 <Project Sdk="Microsoft.NET.Sdk">
 
@@ -21,224 +25,77 @@ Usage - MSBuild
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ILRepack.MSBuild.Task" />
+        <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.1" />
     </ItemGroup>
 
-    <Target Name="ILRepackThisAssembly" AfterTargets="Build">
+	<!-- Are you targeting .NET full framework? Then you only need to copy the target below. -->
+	<Target Name="ILRepack" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+
+        <PropertyGroup>
+            <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
+        </PropertyGroup>
 
         <ItemGroup>
-            <InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge1.dll" />
-            <InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge2.dll" />
-            <InputAssemblies Include="$(OutputPath)\ExampleAssemblyToMerge3.dll" />
+            <InputAssemblies Include="dependency1.dll" />
+            <InputAssemblies Include="..\Mono.Cecil.dll" />
+            <InputAssemblies Include="c:\a\rooted\path\Mono.Cecil.Mdb.dll" />
         </ItemGroup>
 
         <ItemGroup>
-            <!-- Must use fully qualified assembly name -->
-            <DoNotInternalizeAssemblies Include="ExampleAssemblyToMerge3" />
+            <InternalizeExcludeAssemblies Include="do.not.internalize.this.assembly.dll" />
         </ItemGroup>
 
-        <ILRepack
-            Parallel="true"
-            Internalize="true"
-            InternalizeExclude="@(DoNotInternalizeAssemblies)"
-            InputAssemblies="@(InputAssemblies)"
-            TargetKind="Dll"
-            OutputFile="$(OutputPath)\$(AssemblyName).dll" />
+        <ILRepack 
+            OutputType="Library" 
+            MainAssembly="$(AssemblyName).dll" 
+            OutputAssembly="$(AssemblyName).dll" 
+            InputAssemblies="@(InputAssemblies)" 
+            InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)" 
+            WorkingDirectory="$(WorkingDirectory)" />
 
     </Target>
 
 </Project>
 ```
 
-Task options
-=======================
+### ILRepack based on wildcard search relative to the working directory
 
-<table border="0" cellpadding="3" cellspacing="0" width="90%" id="tasksTable">
-    <tr>
-        <th align="left" width="190">
-            Option
-        </th>
-        <th align="left">
-            Description
-        </th>
-    </tr>
-	<tr>
-        <td>
-           KeyFile  
-        </td>
-        <td>
-            Specifies a keyfile to sign the output assembly
-        </td>
-    </tr>
-	<tr>
-        <td>
-           LogFile  
-        </td>
-        <td>
-           Specifies a logfile to output log information
-        </td>
-    </tr>
-	<tr>
-        <td>
-           Union  
-        </td>
-        <td>
-           Merges types with identical names into one
-        </td>
-    </tr>
-	<tr>
-        <td>
-            DebugInfo
-        </td>
-        <td>
-            Enable/disable symbol file generation
-        </td>
-    </tr>
-	<tr>
-        <td>
-            AttributeFile 
-        </td>
-        <td>
-            Take assembly attributes from the given assembly file
-        </td>
-    </tr>
-	<tr>
-        <td>
-            CopyAttributes 
-        </td>
-        <td>
-            Copy assembly attributes
-        </td>
-    </tr>
-	<tr>
-        <td>
-            AllowMultiple 
-        </td>
-        <td>
-            Allows multiple attributes (if type allows)
-        </td>
-    </tr>
-	<tr>
-        <td>
-            TargetKind 
-        </td>
-        <td>
-            Target assembly kind (Exe|Dll|WinExe|SameAsPrimaryAssembly)
-        </td>
-    </tr>
-	<tr>
-        <td>
-            TargetPlatformVersion 
-        </td>
-        <td>
-            Target platform (v1, v1.1, v2, v4 supported)
-        </td>
-    </tr>
-	<tr>
-        <td>
-            XmlDocumentation 
-        </td>
-        <td>
-            Merge assembly xml documentation
-        </td>
-    </tr>
-	<tr>
-        <td>
-            LibraryPath 
-        </td>
-        <td>
-            List of paths to use as "include directories" when attempting to merge assemblies
-        </td>
-    </tr>
-	<tr>
-        <td>
-            Internalize 
-        </td>
-        <td>
-            Set all types but the ones from the first assembly 'internal'
-        </td>
-    </tr>
-	<tr>
-        <td>
-            InternalizeExclude 
-        </td>
-        <td>
-            Assemblies that will not be internalized.
-        </td>
-    </tr>
-	<tr>
-        <td>
-            OutputFile 
-        </td>
-        <td>
-            Output name for merged assembly
-        </td>
-    </tr>
-	<tr>
-        <td>
-            InputAssemblies 
-        </td>
-        <td>
-            List of assemblies that will be merged
-        </td>
-    </tr>
-	<tr>
-        <td>
-            DelaySign 
-        </td>
-        <td>
-            Set the keyfile, but don't sign the assembly
-        </td>
-    </tr>
-	<tr>
-        <td>
-            AllowDuplicateResources 
-        </td>
-        <td>
-            Allows to duplicate resources in output assembly 
-        </td>
-    </tr>
-	<tr>
-        <td>
-            ZeroPeKind 
-        </td>
-        <td>
-            Allows assemblies with Zero PeKind (but obviously only IL will get merged)
-        </td>
-    </tr>
-	<tr>
-        <td>
-            Parallel 
-        </td>
-        <td>
-            Use as many CPUs as possible to merge the assemblies
-        </td>
-    </tr>
-	<tr>
-        <td>
-            Verbose 
-        </td>
-        <td>
-            Additional debug information during merge that will be outputted to LogFile
-        </td>
-    </tr>
-	<tr>
-        <td>
-            PrimaryAssemblyFile 
-        </td>
-        <td>
-            Used in conjunction with Internalize to specify the main assembly filename
-        </td>
-    </tr>
-	<tr>
-        <td>
-            Wildcards 
-        </td>
-        <td>
-            Allows (and resolves) file wildcards (e.g. `*`.dll) in input assemblies
-        </td>
-    </tr>
-</table>
+```
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.1" />
+    </ItemGroup>
+
+	<!-- Are you targeting .NET full framework? Then you only need to copy the target below. -->
+	<Target Name="ILRepack" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+
+        <PropertyGroup>
+            <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <InternalizeExcludeAssemblies Include="do.not.internalize.this.assembly.dll" />
+            <InternalizeExcludeAssemblies Include="..\do.not.internalize.this.assembly.dll" />
+            <InternalizeExcludeAssemblies Include="c:\a\rooted\path\do.not.internalize.this.assembly.dll" />
+        </ItemGroup>
+
+        <ILRepack 
+            OutputType="Library" 
+            MainAssembly="$(AssemblyName).dll" 
+            OutputAssembly="$(AssemblyName).dll" 
+            InputAssemblies="*.dll" 
+            InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)" 
+            WorkingDirectory="$(WorkingDirectory)" />
+
+    </Target>
+
+</Project>
+```
 
 License
 =======
