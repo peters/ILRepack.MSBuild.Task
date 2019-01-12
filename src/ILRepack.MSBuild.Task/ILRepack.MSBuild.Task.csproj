@@ -77,12 +77,18 @@
 
     <PropertyGroup> 
       <InputAssemblies Condition="'$(IsNetFullFramework)' == 'true'">
+        bamlparser.dll 
+        fasterflect.netstandard.dll 
         ilrepack.dll
+        mono.cecil.dll 
       </InputAssemblies>
       <InputAssemblies Condition="$(TargetFramework.Contains('netstandard'))">
+        bamlparser.dll 
+        fasterflect.netstandard.dll 
         ilrepack.dll
         microsoft.build.framework.dll 
         microsoft.build.utilities.core.dll 
+        mono.cecil.dll
         system.collections.immutable.dll
         system.reflection.emit.ilgeneration.dll
         system.reflection.emit.lightweight.dll
@@ -93,8 +99,12 @@
         system.threading.thread.dll
       </InputAssemblies>
       <InputAssemblies Condition="$(TargetFramework.Contains('netcoreapp'))">
+        bamlparser.dll 
+        fasterflect.netstandard.dll 
+        ilrepack.dll
         microsoft.build.framework.dll 
         microsoft.build.utilities.core.dll
+        mono.cecil.dll
         system.text.encoding.codepages.dll
       </InputAssemblies>
       <WorkingDirectory>$(OutputPath)</WorkingDirectory>

@@ -168,7 +168,13 @@ namespace ILRepack.MSBuild.Task
         public virtual bool Internalize { get; set; } = true;
 
         /// <summary>
-        /// List of assemblies that should not be interalized.
+        /// List of assemblies that should not be internalized.
+        /// Regular expressions are supported.
+        ///
+        /// Example:
+        /// ^MyAssembly -> Internalizes all types inside MyAssembly
+        /// ^MyAssembly.Some.Namespace -> Internalizes all types inside MyAssembly.Some.Namspace
+        /// 
         /// </summary>
         public virtual ITaskItem[] InternalizeExcludeAssemblies { get; set; }
 
@@ -294,35 +300,31 @@ namespace ILRepack.MSBuild.Task
 
             for (var index = 0; index < InternalizeExcludeAssemblies.Length; index++)
             {
-                var excludeAssembly = InternalizeExcludeAssemblies[index]?.ItemSpec;
-                if (excludeAssembly == null)
+                var excludeNamespace = InternalizeExcludeAssemblies[index]?.ItemSpec;
+                if (excludeNamespace == null)
                 {
                     Log.LogError($"{nameof(ILRepack)}: Unable to find exclude assembly at index {index}: Filename is empty.");
                     return false;
                 }
 
-                var excludeAssemblyFullPath = Path.IsPathRooted(excludeAssembly) ? Path.GetFullPath(excludeAssembly) : Path.Combine(WorkingDirectory, excludeAssembly);
-                if (!File.Exists(excludeAssemblyFullPath))
+                try
                 {
-                    excludeAssembly = Path.GetFileNameWithoutExtension(excludeAssemblyFullPath);
-                }
-                else
-                {
-                    try
+                    if (File.Exists(excludeNamespace))
                     {
-                        using (var excludeAssemblyDefinition = AssemblyDefinition.ReadAssembly(excludeAssemblyFullPath, new ReaderParameters(ReadingMode.Immediate)))
+                        using (var assemblyDefinition = AssemblyDefinition.ReadAssembly(excludeNamespace))
                         {
-                            excludeAssembly = excludeAssemblyDefinition.MainModule.Name;
+                            excludeNamespace = $"^{assemblyDefinition.MainModule.Name}";
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Log.LogErrorFromException(e);
-                        return false;
-                    }
-                }
 
-                InternalizeExcludeAssemblies[index] = new TaskItem(Path.GetFileNameWithoutExtension(excludeAssembly));
+                    var regex = new Regex(excludeNamespace);
+                    InternalizeExcludeAssemblies[index] = new TaskItem(regex.ToString());
+                }
+                catch (Exception e)
+                {
+                    Log.LogErrorFromException(e);
+                    return false;
+                }
             }
 
             if (InternalizeExcludeAssemblies.Length > 0
@@ -363,12 +365,8 @@ namespace ILRepack.MSBuild.Task
                     SearchDirectories = new List<string> {WorkingDirectory},
                 };
 
-                if (InternalizeExcludeAssemblies.Length > 0)
-                {
-                    repackOptions.ExcludeInternalizeMatches.AddRange(InternalizeExcludeAssemblies
-                        .Where(x => x != null)
-                        .Select(x => new Regex($"^{x}", RegexOptions.IgnoreCase | RegexOptions.Compiled)));
-                }
+                repackOptions.ExcludeInternalizeMatches.AddRange(InternalizeExcludeAssemblies
+                    .Select(x => new Regex(x.ItemSpec, RegexOptions.IgnoreCase | RegexOptions.Compiled)));
 
                 Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Output type: {OutputType}.");
                 Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Internalize: {(Internalize ? "yes" : "no")}.");

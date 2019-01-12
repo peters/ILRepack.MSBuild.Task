@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\deps\ilrepack\deps\cecil\Mono.Cecil.csproj" />
     <ProjectReference Include="..\..\deps\ilrepack\ILRepack\ILRepack.csproj" />
     <ProjectReference Include="..\ilrepack.msbuild.task\ilrepack.msbuild.task.csproj" />
   </ItemGroup>

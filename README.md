@@ -48,9 +48,14 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
             <InputAssemblies Include="..\Mono.Cecil.dll" />
             <InputAssemblies Include="c:\a\rooted\path\Mono.Cecil.Mdb.dll" />
         </ItemGroup>
-
+		<
         <ItemGroup>
+			<!-- Dot not internalize any types inside this assembly -->
             <InternalizeExcludeAssemblies Include="do.not.internalize.this.assembly.dll" />
+			<!-- Internalize all types inside Some.Assembly.Namespace (Regular expression) -->
+            <InternalizeExcludeAssemblies Include="^Some.Assembly.Namespace" />
+			<!-- Internalize all types except Some.Assembly.Namespace.SpecificType (Regular expression) -->
+            <InternalizeExcludeAssemblies Include="^Some.Assembly.Namespace.SpecificType" />
         </ItemGroup>
 
         <ILRepack 

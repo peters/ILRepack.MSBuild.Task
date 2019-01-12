@@ -23,5 +23,11 @@ namespace ILRepack.MSBuild.Task.Tests.Extensions
             if (assemblyDefinition == null) throw new ArgumentNullException(nameof(assemblyDefinition));
             return assemblyDefinition.Name.Name;
         }
+
+        public static string GetInternalizeRegex(this AssemblyDefinition assemblyDefinition)
+        {
+            if (assemblyDefinition == null) throw new ArgumentNullException(nameof(assemblyDefinition));
+            return $"^{assemblyDefinition.Name.Name}";
+        }
     }
 }
