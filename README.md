@@ -13,7 +13,15 @@ MSBuild task for [ILRepack](https://github.com/gluck/il-repack) which is an open
 `netstandard2.0`
 `net46`
 
-NB! You cannot use `OutputType` EXE on .NET Core assemblies is not supported.
+NB! `OutputType` EXE on .NET Core assemblies is not supported.
+
+## Building (Windows)
+
+`build.cmd` (Visual Studio 15.9 required)
+
+## Building (Unix)
+
+`build.sh` (.net core 2.2.101 required)
 
 ### ILRepack a list of assemblies 
 
@@ -48,6 +56,7 @@ NB! You cannot use `OutputType` EXE on .NET Core assemblies is not supported.
         <ILRepack 
             OutputType="Library" 
             MainAssembly="$(AssemblyName).dll" 
+	    <!-- Output path is by default the same location as MainAssembly -->
             OutputAssembly="$(AssemblyName).dll" 
             InputAssemblies="@(InputAssemblies)" 
             InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)" 
@@ -87,6 +96,7 @@ NB! You cannot use `OutputType` EXE on .NET Core assemblies is not supported.
         <ILRepack 
             OutputType="Library" 
             MainAssembly="$(AssemblyName).dll" 
+	    <!-- Output path is by default the same location as MainAssembly -->
             OutputAssembly="$(AssemblyName).dll" 
             InputAssemblies="*.dll" 
             InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)" 
