@@ -25,7 +25,7 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
 
 ### ILRepack a library with using an explicit list of input assemblies
 
-```
+```xml
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
@@ -66,9 +66,9 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
 </Project>
 ```
 
-### ILRepack a library and all it's dependencies
+### ILRepack a library and all dependencies
 
-```
+```xml
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
@@ -99,9 +99,9 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
 </Project>
 ```
 
-### ILRepack a executable and all it's dependencies
+### ILRepack a executable and all dependencies
 
-```
+```xml
 <Target Name="ILRepack" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
 
         <PropertyGroup>
@@ -117,7 +117,7 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
             WorkingDirectory="$(WorkingDirectory)" />
 
 </Target>
-``
+```
 
 License
 =======
