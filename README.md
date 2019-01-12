@@ -37,7 +37,7 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
     </ItemGroup>
 
     <!-- Are you targeting .NET full framework? Then you only need to copy the target below. -->
-    <Target Name="ILRepack" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+    <Target Name="ILRepack" AfterTargets="Build">
 
         <PropertyGroup>
             <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
@@ -80,7 +80,7 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
     </ItemGroup>
     
     <!-- Are you targeting .NET full framework? Then you only need to copy the target below. -->
-    <Target Name="ILRepack" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+    <Target Name="ILRepack" AfterTargets="Build">
 
         <PropertyGroup>
             <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
@@ -102,7 +102,7 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
 ### ILRepack a executable and all dependencies
 
 ```xml
-<Target Name="ILRepack" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+<Target Name="ILRepack" AfterTargets="Build">
 
         <PropertyGroup>
             <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
