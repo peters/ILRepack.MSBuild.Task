@@ -99,6 +99,7 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
 	    <!-- Output path is by default the same location as MainAssembly -->
             OutputAssembly="$(AssemblyName).dll" 
             InputAssemblies="*.dll" 
+	    WilcardInputAssemblies="true"
             InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)" 
             WorkingDirectory="$(WorkingDirectory)" />
 
