@@ -23,7 +23,7 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
 
 `build.sh` (.net core 2.2.101 required)
 
-### ILRepack a list of assemblies 
+### ILRepack a library with using an explicit list of input assemblies
 
 ```
 <Project Sdk="Microsoft.NET.Sdk">
@@ -66,7 +66,7 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
 </Project>
 ```
 
-### ILRepack based on wildcard search relative to the working directory
+### ILRepack a library and all it's dependencies
 
 ```
 <Project Sdk="Microsoft.NET.Sdk">
@@ -86,25 +86,38 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
             <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
         </PropertyGroup>
 
-        <ItemGroup>
-            <InternalizeExcludeAssemblies Include="do.not.internalize.this.assembly.dll" />
-            <InternalizeExcludeAssemblies Include="..\do.not.internalize.this.assembly.dll" />
-            <InternalizeExcludeAssemblies Include="c:\a\rooted\path\do.not.internalize.this.assembly.dll" />
-        </ItemGroup>
-
         <ILRepack 
             OutputType="$(OutputType)" 
             MainAssembly="$(AssemblyName).dll" 
             OutputAssembly="$(AssemblyName).dll" 
             InputAssemblies="*.dll" 
 	    WilcardInputAssemblies="true"
-            InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)" 
             WorkingDirectory="$(WorkingDirectory)" />
 
     </Target>
 
 </Project>
 ```
+
+### ILRepack a executable and all it's dependencies
+
+```
+<Target Name="ILRepack" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+
+        <PropertyGroup>
+            <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
+        </PropertyGroup>
+
+        <ILRepack
+            OutputType="$(OutputType)"
+            MainAssembly="$(AssemblyName).exe"
+            OutputAssembly="$(AssemblyName).exe"
+            InputAssemblies="*.dll"
+	    WilcardInputAssemblies="true"
+            WorkingDirectory="$(WorkingDirectory)" />
+
+</Target>
+``
 
 License
 =======
