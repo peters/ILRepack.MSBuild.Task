@@ -36,8 +36,8 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
         <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.1" />
     </ItemGroup>
 
-	<!-- Are you targeting .NET full framework? Then you only need to copy the target below. -->
-	<Target Name="ILRepack" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+    <!-- Are you targeting .NET full framework? Then you only need to copy the target below. -->
+    <Target Name="ILRepack" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
 
         <PropertyGroup>
             <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
@@ -54,9 +54,8 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
         </ItemGroup>
 
         <ILRepack 
-            OutputType="Library" 
+            OutputType="$(OutputType)" 
             MainAssembly="$(AssemblyName).dll" 
-	    <!-- Output path is by default the same location as MainAssembly -->
             OutputAssembly="$(AssemblyName).dll" 
             InputAssemblies="@(InputAssemblies)" 
             InternalizeExcludeAssemblies="@(InternalizeExcludeAssemblies)" 
@@ -79,9 +78,9 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
     <ItemGroup>
         <PackageReference Include="ILRepack.MSBuild.Task" Version="2.0.1" />
     </ItemGroup>
-
-	<!-- Are you targeting .NET full framework? Then you only need to copy the target below. -->
-	<Target Name="ILRepack" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+    
+    <!-- Are you targeting .NET full framework? Then you only need to copy the target below. -->
+    <Target Name="ILRepack" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
 
         <PropertyGroup>
             <WorkingDirectory>$(MSBuildThisFileDirectory)bin\$(Configuration)\$(TargetFramework)</WorkingDirectory>
@@ -94,9 +93,8 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
         </ItemGroup>
 
         <ILRepack 
-            OutputType="Library" 
+            OutputType="$(OutputType)" 
             MainAssembly="$(AssemblyName).dll" 
-	    <!-- Output path is by default the same location as MainAssembly -->
             OutputAssembly="$(AssemblyName).dll" 
             InputAssemblies="*.dll" 
 	    WilcardInputAssemblies="true"
