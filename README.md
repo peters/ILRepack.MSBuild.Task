@@ -12,6 +12,8 @@ MSBuild task for [ILRepack](https://github.com/gluck/il-repack) which is an open
 - `netcoreapp2.1`
 - `netstandard2.0`
 - `net46`
+- `net45`
+- `net40`
 
 NB! `OutputType` EXE on .NET Core assemblies is not supported.
 
