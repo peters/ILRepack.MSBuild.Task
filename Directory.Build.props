@@ -1,0 +1,42 @@
+<Project>
+
+	<PropertyGroup>
+        <LangVersion>7.3</LangVersion>	
+	</PropertyGroup>
+
+    <PropertyGroup>
+    	<OsPlatform Condition="$([MSBuild]::IsOsPlatform('Windows'))">Windows</OsPlatform>
+        <OsPlatform Condition="'$(OsPlatform)' == '' AND !$([MSBuild]::IsOsPlatform('Windows'))">Unix</OsPlatform>
+        <IsNetCoreApp Condition="$(TargetFramework.StartsWith('netcoreapp'))">true</IsNetCoreApp>
+        <IsNetCoreApp Condition="'$(IsNetCoreApp)' == ''">false</IsNetCoreApp>
+        <IsNetStandard Condition="$(TargetFramework.StartsWith('netstandard'))">true</IsNetStandard>
+        <IsNetStandard Condition="'$(IsNetStandard)' == ''">false</IsNetStandard>
+        <IsNetFullFramework Condition="'$(IsNetStandard)' == 'false' AND '$(IsNetCoreApp)' == 'false'">true</IsNetFullFramework>
+        <IsNetFullFramework Condition="'$(IsNetFullFramework)' == ''">false</IsNetFullFramework>
+		<PackageOutputPath>$(MSBuildThisFileDirectory)nupkgs</PackageOutputPath>
+    </PropertyGroup>
+	
+	<PropertyGroup Condition="$(OsPlatform) == 'Windows'">
+        <DefineConstants>$(DefineConstants);PLATFORM_WINDOWS;</DefineConstants>
+    </PropertyGroup>
+
+	<PropertyGroup Condition="$(OsPlatform) == 'Unix'">
+        <DefineConstants>$(DefineConstants);PLATFORM_UNIX;</DefineConstants>
+    </PropertyGroup>
+	
+    <PropertyGroup Condition="$(IsNetStandard)">
+        <DefineConstants>$(DefineConstants);NETSTANDARD;</DefineConstants>
+    </PropertyGroup>
+	
+    <PropertyGroup Condition="$(IsNetCoreApp)">
+        <DefineConstants>$(DefineConstants);NETCOREAPP;NET_CORE;</DefineConstants>
+    </PropertyGroup>
+	
+    <PropertyGroup Condition="$(IsNetFullFramework)">
+        <DefineConstants>$(DefineConstants);NETFULLFRAMEWORK;</DefineConstants>
+    </PropertyGroup>
+	
+    <PropertyGroup Condition="$(IsNetFullFramework) AND '$(TargetFramework)' == 'net461'">
+        <DefineConstants>$(DefineConstants);NET461;</DefineConstants>
+    </PropertyGroup>
+</Project>
