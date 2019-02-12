@@ -3,3 +3,4 @@ bin/
 obj/
 nupkgs/
 build/
+src/packages/
