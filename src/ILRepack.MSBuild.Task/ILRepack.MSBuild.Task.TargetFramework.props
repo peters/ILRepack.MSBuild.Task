@@ -5,6 +5,7 @@
 <Project TreatAsLocalProperty="TaskFolder;TaskAssembly">
   <PropertyGroup>
 	<IsNetCoreApp Condition="$(MSBuildRuntimeType) == 'Core'">true</IsNetCoreApp>
+	<IsNetCoreApp Condition="$(IsNetCoreApp) == ''">false</IsNetCoreApp>
     <TaskFolder Condition="$(IsNetCoreApp)">netstandard2.0</TaskFolder>
     <TaskFolder Condition="!$(IsNetCoreApp)">net46</TaskFolder>
     <TaskAssembly>$(MSBuildThisFileDirectory)..\tasks\$(TaskFolder)\ILRepack.MSBuild.Task.dll</TaskAssembly>
