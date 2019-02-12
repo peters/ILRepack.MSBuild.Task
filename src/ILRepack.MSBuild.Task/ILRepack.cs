@@ -68,7 +68,7 @@ namespace ILRepack.MSBuild.Task
         public virtual string KeyFile
         {
             get => _keyFile;
-            set => _keyFile = BuildPath(ConvertEmptyToNull(value));
+            set => _keyFile = value;
         }
 #endif
 
@@ -261,7 +261,7 @@ namespace ILRepack.MSBuild.Task
                 Log.LogError($"{nameof(ILRepack)}: Please specify a output assembly.");
                 return false;
             }
-
+            
             InputAssemblies = InputAssemblies ?? new ITaskItem[] { };
             InternalizeExcludeAssemblies = InternalizeExcludeAssemblies ?? new ITaskItem[] { };
 
@@ -333,13 +333,23 @@ namespace ILRepack.MSBuild.Task
                 Log.LogError($"{nameof(ILRepack)}: You must set property {nameof(Internalize)} to true in order to specify a list of assemblies to exclude from being internalized.");
                 return false;
             }
+
+            #if NETFULLFRAMEWORK
+            KeyFile = _keyFile != null ? Path.GetFullPath(_keyFile) : null;
+            if (KeyFile != null && !File.Exists(KeyFile))
+            {
+                Log.LogError($"Unable to find {nameof(KeyFile)}: {KeyFile}.");
+                return false;
+            }
+            #endif
             
             try
             {
                 var repackOptions = new RepackOptions
                 {
                     #if NETFULLFRAMEWORK
-                    KeyFile = _keyFile,
+                    KeyFile = KeyFile,
+                    TargetPlatformVersion = TargetPlatformVersion,
                     #endif
                     LogFile = _logFile,
                     Log = !string.IsNullOrEmpty(_logFile),
@@ -350,9 +360,6 @@ namespace ILRepack.MSBuild.Task
                     AttributeFile = AttributeAssembly,
                     AllowMultipleAssemblyLevelAttributes = AllowMultiple,
                     TargetKind = _outputType,
-                    #if NETFULLFRAMEWORK
-                    TargetPlatformVersion = TargetPlatformVersion,
-                    #endif
                     XmlDocumentation = XmlDocumentation,
                     Internalize = Internalize,
                     DelaySign = DelaySign,
