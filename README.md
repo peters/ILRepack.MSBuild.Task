@@ -17,13 +17,19 @@ MSBuild task for [ILRepack](https://github.com/gluck/il-repack) which is an open
 
 NB! `OutputType` EXE on .NET Core assemblies is not supported.
 
-## Building (Windows)
+## Build prerequisites
 
-`build.cmd` (Visual Studio 15.9 required)
+- Visual Studio 15.9
+- .net core 2.2.101 sdk must be installed
+- Checkout git submodules: `git submodule update --init --recursive`
 
-## Building (Unix)
+## Build on Windows
 
-`build.sh` (.net core 2.2.101 required)
+`build.cmd` 
+
+## Build on Unix
+
+`build.sh`
 
 ### ILRepack a library with using an explicit list of input assemblies
 
