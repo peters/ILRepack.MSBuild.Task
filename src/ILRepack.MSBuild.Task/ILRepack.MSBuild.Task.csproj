@@ -43,9 +43,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.9.20" />
-
-    <!-- Marks all packages as 'local only' so they don't end up in the nuspec. -->
-    <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
@@ -69,8 +66,6 @@
         bamlparser.dll 
         fasterflect.netstandard.dll 
         ilrepack.dll
-        microsoft.build.framework.dll 
-        microsoft.build.utilities.core.dll 
         mono.cecil.dll
         system.collections.immutable.dll
         system.reflection.emit.ilgeneration.dll
@@ -85,8 +80,6 @@
         bamlparser.dll 
         fasterflect.netstandard.dll 
         ilrepack.dll
-        microsoft.build.framework.dll 
-        microsoft.build.utilities.core.dll
         mono.cecil.dll
         system.text.encoding.codepages.dll
       </InputAssemblies>
