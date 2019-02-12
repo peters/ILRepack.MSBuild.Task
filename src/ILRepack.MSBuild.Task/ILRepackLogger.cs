@@ -1,5 +1,4 @@
-﻿#if !NETFULLFRAMEWORK
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Build.Framework;
 using Mono.Cecil;
@@ -72,4 +71,3 @@ namespace ILRepack.MSBuild.Task
         public bool ShouldLogVerbose { get; set; }
     }
 }
-#endif
