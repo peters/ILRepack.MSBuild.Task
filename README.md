@@ -101,7 +101,7 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
             OutputType="$(OutputType)" 
             MainAssembly="$(AssemblyName).dll" 
             OutputAssembly="$(AssemblyName).dll" 
-            InputAssemblies="*.dll" 
+            InputAssemblies="$(WorkingDirectory)\*.dll" 
 	    WilcardInputAssemblies="true"
             WorkingDirectory="$(WorkingDirectory)" />
 
@@ -123,7 +123,7 @@ NB! `OutputType` EXE on .NET Core assemblies is not supported.
             OutputType="$(OutputType)"
             MainAssembly="$(AssemblyName).exe"
             OutputAssembly="$(AssemblyName).exe"
-            InputAssemblies="*.dll"
+            InputAssemblies="$(WorkingDirectory)\*.dll"
 	    WilcardInputAssemblies="true"
             WorkingDirectory="$(WorkingDirectory)" />
 
