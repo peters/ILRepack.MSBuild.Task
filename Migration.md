@@ -47,10 +47,6 @@ If you're using `ILRepack.MsBuild.Task V1.x` you may have something like the fol
 
   - Change `LibraryPath` to `WorkingDirectory`
 
-> Error	MSB4064	The "KeyFile" parameter is not supported by the "ILRepack" task. Verify the parameter exists on the task, and it is a settable public instance property.
-
-  - The `KeyFile` property is missing in V2. I've raised an [issue](https://github.com/peters/ILRepack.MSBuild.Task/issues/26) about it. At the moment, there is no way to sign the output assembly.
-
 > Error	MSB4064	The "PrimaryAssemblyFile" parameter is not supported by the "ILRepack" task. Verify the parameter exists on the task, and it is a settable public instance property.
 
   - Change `PrimaryAssemblyFile` to `MainAssembly`
