@@ -56,12 +56,9 @@ namespace ILRepack.MSBuild.Task
     {
         string _logFile;
         string _outputAssembly;
-#if NETFULLFRAMEWORK
         string _keyFile;
-#endif
         ILRepacking.ILRepack.Kind _outputType;
 
-#if NETFULLFRAMEWORK
         /// <summary>
         /// Specifies a keyfile to sign the output assembly
         /// </summary>
@@ -70,7 +67,6 @@ namespace ILRepack.MSBuild.Task
             get => _keyFile;
             set => _keyFile = value;
         }
-#endif
 
         internal IBuildEngine FakeBuildEngine
         {
@@ -334,21 +330,19 @@ namespace ILRepack.MSBuild.Task
                 return false;
             }
 
-            #if NETFULLFRAMEWORK
             KeyFile = _keyFile != null ? Path.GetFullPath(_keyFile) : null;
             if (KeyFile != null && !File.Exists(KeyFile))
             {
                 Log.LogError($"Unable to find {nameof(KeyFile)}: {KeyFile}.");
                 return false;
             }
-            #endif
             
             try
             {
                 var repackOptions = new RepackOptions
                 {
-                    #if NETFULLFRAMEWORK
                     KeyFile = KeyFile,
+                    #if NETFULLFRAMEWORK
                     TargetPlatformVersion = TargetPlatformVersion,
                     #endif
                     LogFile = _logFile,
