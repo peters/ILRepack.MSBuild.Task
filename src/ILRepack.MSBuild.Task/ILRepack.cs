@@ -43,6 +43,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Build.Utilities;
 using Mono.Cecil;
+#if DEBUG
+using System.Diagnostics;
+#endif
 
 [assembly: InternalsVisibleTo("ILRepack.MSBuild.Task.Tests")]
 
@@ -78,6 +81,9 @@ namespace ILRepack.MSBuild.Task
             set => BuildEngine = value;
         }
 
+#if DEBUG
+        public virtual bool DebuggerEnabled { get; set; }
+#endif
         /// <summary>
         /// Specifies a logfile to output log information.
         /// </summary>
@@ -235,6 +241,17 @@ namespace ILRepack.MSBuild.Task
 
         public override bool Execute()
         {
+#if DEBUG
+            if (DebuggerEnabled)
+            {
+                Log.LogMessage(MessageImportance.High, "DebuggerEnabled: Attaching to a debugger");
+                Debugger.Break();
+                if (Debugger.IsAttached == false)
+                {
+                    Debugger.Launch();
+                }
+            }
+#endif
             if (DebugInfo && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Log.LogError($"{nameof(ILRepacking.ILRepack)}: PDB (debug info) writer is only available on Windows.");
@@ -291,7 +308,7 @@ namespace ILRepack.MSBuild.Task
 
             // ILRepack assumes main assembly to be the first item in the array.
             InputAssemblies = new ITaskItem[] { new TaskItem(MainAssembly) }.Concat(InputAssemblies).ToArray();
-            
+
             // Main assembly should be public.
             if (Internalize && InternalizeExcludeAssemblies.All(x => x.ItemSpec != MainAssembly))
             {
@@ -377,6 +394,7 @@ namespace ILRepack.MSBuild.Task
 
                 Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Output type: {OutputType}.");
                 Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Internalize: {(Internalize ? "yes" : "no")}.");
+                Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: DebugInfo: {(DebugInfo ? "yes" : "no")}.");
                 Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Working directory: {WorkingDirectory}.");
                 Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Main assembly: {MainAssembly}.");
                 Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Output assembly: {OutputAssembly}.");
