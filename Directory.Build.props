@@ -39,4 +39,8 @@
     <PropertyGroup Condition="$(IsNetFullFramework) AND '$(TargetFramework)' == 'net461'">
         <DefineConstants>$(DefineConstants);NET461;</DefineConstants>
     </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
+    </PropertyGroup>
 </Project>
