@@ -194,6 +194,11 @@ namespace ILRepack.MSBuild.Task
         public virtual ITaskItem[] InputAssemblies { get; set; } = new ITaskItem[0];
 
         /// <summary>
+        /// List of library search paths
+        /// </summary>
+        public virtual ITaskItem[] SearchDirectories { get; set; } = new ITaskItem[0];
+
+        /// <summary>
         /// Set the keyfile, but don't sign the assembly
         /// </summary>
         public virtual bool DelaySign { get; set; }
@@ -263,6 +268,7 @@ namespace ILRepack.MSBuild.Task
             }
             
             InputAssemblies = InputAssemblies ?? new ITaskItem[] { };
+            SearchDirectories = SearchDirectories ?? new ITaskItem[] { };
             InternalizeExcludeAssemblies = InternalizeExcludeAssemblies ?? new ITaskItem[] { };
 
             if (WilcardInputAssemblies)
@@ -292,6 +298,9 @@ namespace ILRepack.MSBuild.Task
             // ILRepack assumes main assembly to be the first item in the array.
             InputAssemblies = new ITaskItem[] { new TaskItem(MainAssembly) }.Concat(InputAssemblies).ToArray();
             
+            // Add working directory to the list of search paths.
+            SearchDirectories = new ITaskItem[] { new TaskItem(WorkingDirectory) }.Concat(SearchDirectories).ToArray();
+
             // Main assembly should be public.
             if (Internalize && InternalizeExcludeAssemblies.All(x => x.ItemSpec != MainAssembly))
             {
@@ -369,7 +378,7 @@ namespace ILRepack.MSBuild.Task
                     OutputFile = _outputAssembly,
                     AllowWildCards = WilcardInputAssemblies,
                     InputAssemblies = InputAssemblies.Select(x => x.ItemSpec.ToString()).Distinct().ToArray(),
-                    SearchDirectories = new List<string> {WorkingDirectory},
+                    SearchDirectories = SearchDirectories.Select(x => x.ItemSpec.ToString()).Distinct().ToArray(),
                 };
 
                 repackOptions.ExcludeInternalizeMatches.AddRange(InternalizeExcludeAssemblies
@@ -386,6 +395,12 @@ namespace ILRepack.MSBuild.Task
                     Log.LogMessage(MessageImportance.High, 
                         $"{nameof(ILRepack)}: Internalize exclude assemblies ({repackOptions.ExcludeInternalizeMatches.Count}): " +
                         $"{string.Join(" ", repackOptions.ExcludeInternalizeMatches.Select(x => x.ToString()))}.");
+                }
+
+                if (SearchDirectories.Length > 0)
+                {
+                    Log.LogMessage(MessageImportance.High,
+                        $"{nameof(ILRepack)}: Search directories ({SearchDirectories.Length}): {string.Join(";", SearchDirectories.Select(x => x.ItemSpec))}.");
                 }
 
                 Log.LogMessage(MessageImportance.High,
