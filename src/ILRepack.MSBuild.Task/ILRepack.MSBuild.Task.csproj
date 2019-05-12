@@ -52,6 +52,12 @@
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(OutputPath)\Microsoft.Build.Framework.dll" PackagePath="$(BuildOutputTargetFolder)\$(TargetFramework)" />
       <TfmSpecificPackageFile Include="$(OutputPath)\Microsoft.Build.Utilities.Core.dll" PackagePath="$(BuildOutputTargetFolder)\$(TargetFramework)" />
+      <!-- Microsoft.Build.Utilities.Core needs this -->
+      <TfmSpecificPackageFile
+        Include="$(OutputPath)\System.Collections.Immutable.dll"
+        PackagePath="$(BuildOutputTargetFolder)\$(TargetFramework)"
+        Condition="Exists('$(OutputPath)\System.Collections.Immutable.dll')"
+        />
     </ItemGroup>
   </Target>
 
