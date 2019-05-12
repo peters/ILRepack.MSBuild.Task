@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
 
   <PropertyGroup>
     <PackageId>ILRepack.MSBuild.Task</PackageId>
@@ -41,9 +41,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.9.20" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.9.20" PrivateAssets="All" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeFilesInPackage</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+  <Target Name="IncludeFilesInPackage">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(OutputPath)\Microsoft.Build.Framework.dll" PackagePath="$(BuildOutputTargetFolder)\$(TargetFramework)" />
+      <TfmSpecificPackageFile Include="$(OutputPath)\Microsoft.Build.Utilities.Core.dll" PackagePath="$(BuildOutputTargetFolder)\$(TargetFramework)" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <ProjectReference Include="..\..\deps\ilrepack\deps\bamlparser\BamlParser.csproj" />
