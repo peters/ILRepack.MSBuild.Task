@@ -174,6 +174,12 @@ namespace ILRepack.MSBuild.Task
         public virtual bool Internalize { get; set; } = true;
 
         /// <summary>
+        /// Rename all internalized types
+        /// (to be used when Internalize is enabled).
+        /// </summary>
+        public virtual bool RenameInternalized { get; set; }
+
+        /// <summary>
         /// List of assemblies that should not be internalized.
         /// Regular expressions are supported.
         ///
@@ -379,6 +385,7 @@ namespace ILRepack.MSBuild.Task
                     TargetKind = _outputType,
                     XmlDocumentation = XmlDocumentation,
                     Internalize = Internalize,
+                    RenameInternalized = RenameInternalized,
                     DelaySign = DelaySign,
                     AllowDuplicateResources = AllowDuplicateResources,
                     AllowZeroPeKind = ZeroPeKind,
@@ -394,6 +401,7 @@ namespace ILRepack.MSBuild.Task
 
                 Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Output type: {OutputType}.");
                 Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Internalize: {(Internalize ? "yes" : "no")}.");
+                Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Rename internalized: {(RenameInternalized ? "yes" : "no")}.");
                 Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: DebugInfo: {(DebugInfo ? "yes" : "no")}.");
                 Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Working directory: {WorkingDirectory}.");
                 Log.LogMessage(MessageImportance.High, $"{nameof(ILRepack)}: Main assembly: {MainAssembly}.");
